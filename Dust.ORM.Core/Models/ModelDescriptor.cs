@@ -7,29 +7,32 @@ using System.Text;
 namespace Dust.ORM.Core.Models
 {
 
-    public class ModelDescriptor<T> where T : DataModel, new()
+    public class ModelDescriptor
     {
         private readonly Dictionary<string, PropertyDescriptor> _Props;
-        public List<Attribute> Attributes { get; private set; }
-        public string ModelTypeName { get; private set; }
+        public string ModelTypeName { get; protected set; }
+        public Type ModelType { get; protected set; }
 
+
+        public List<Attribute> Attributes { get; protected set; }
         public IEnumerable<PropertyDescriptor> Props { get { return _Props.Values; } }
 
-        public ModelDescriptor()
+
+        public ModelDescriptor(Type modelType)
         {
-            ModelTypeName = typeof(T).Name;
+            ModelType = modelType;
+            ModelTypeName = modelType.Name;
             Attributes = new List<Attribute>();
             _Props = new Dictionary<string, PropertyDescriptor>();
 
-            Type type = typeof(T);
-            foreach(object a in type.GetCustomAttributes(true))
+            foreach (object a in ModelType.GetCustomAttributes(true))
             {
-                if(a is Attribute)
+                if (a is Attribute)
                 {
                     Attributes.Add(a as Attribute);
                 }
             }
-            foreach( PropertyInfo p in type.GetProperties())
+            foreach (PropertyInfo p in ModelType.GetProperties())
             {
                 _Props.Add(p.Name, new PropertyDescriptor(p));
             }
@@ -46,20 +49,40 @@ namespace Dust.ORM.Core.Models
 
         public override string ToString()
         {
-            StringBuilder res = new StringBuilder( "ModelDescriptor<");
-            res.Append(typeof(T).Name);
+            StringBuilder res = new StringBuilder("ModelDescriptor<");
+            res.Append(ModelTypeName);
             res.Append(">{\n");
-            foreach(PropertyDescriptor p in _Props.Values)
+            foreach (PropertyDescriptor p in _Props.Values)
             {
                 res.Append('\t');
-                res.Append( p.ToString() );
+                res.Append(p.ToString());
                 res.AppendLine();
             }
             res.Append('}');
             return res.ToString();
         }
 
-        public T Construct(IDataReader reader)
+        public virtual DataModel Construct(IDataReader reader)
+        {
+            DataModel res = (DataModel)Activator.CreateInstance(ModelType);
+            foreach (PropertyDescriptor p in Props)
+            {
+                p.Set(res, reader.GetRaw(p.Name));
+            }
+            return res;
+        }
+    }
+
+
+    public class ModelDescriptor<T> : ModelDescriptor where T : DataModel, new()
+    {
+
+        public ModelDescriptor() : base(typeof(T))
+        {
+        }
+
+
+        public override T Construct(IDataReader reader)
         {
             T res = new T();
             foreach(PropertyDescriptor p in Props)

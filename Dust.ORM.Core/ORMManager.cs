@@ -58,16 +58,6 @@ namespace Dust.ORM.Core
 
         private IDatabase<T> CreateDatabase<T>() where T: DataModel, new()
         {
-            /*
-            switch (Config.SelectedDatabase)
-            {
-                case : return null; // new MySQLDatabase<T>(Config.MySQLConfig, new ModelDescriptor<T>());
-                case "null": case "none":
-                    return null;
-                default: 
-                    throw new DatabaseException("Unsuported database type: " + Config.SelectedDatabase);
-            }
-            */
             if (DatabaseTypes.ContainsKey(Config.SelectedDatabase))
             {
                 DatabaseConfiguration c = Config.Configs.Find(p => p.Name.Equals(Config.SelectedDatabase));
@@ -148,8 +138,7 @@ namespace Dust.ORM.Core
             {
                 if (e is DatabaseException)
                 {
-                    Logs.Log(e.Message);
-                    Logs.Log((e as DatabaseException).Statement);
+                    Logs.Log(e.ToString());
                 }
                 else if (e is RepositoryException)
                 {

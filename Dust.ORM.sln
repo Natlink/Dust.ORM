@@ -5,9 +5,9 @@ VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dust.ORM.Core", "Dust.ORM.Core\Dust.ORM.Core.csproj", "{A944BDBA-FB6E-47BF-A15D-ADD9EF711FF1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dust.ORM.UnitTest", "Dust.ORM.UnitTest\Dust.ORM.UnitTest.csproj", "{631139F4-1385-4BE5-B370-86FCC46E2116}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dust.ORM.CoreTest", "Dust.ORM.UnitTest\Dust.ORM.CoreTest.csproj", "{631139F4-1385-4BE5-B370-86FCC46E2116}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dust.ORM.Mysql", "Dust.ORM.Mysql\Dust.ORM.Mysql.csproj", "{56363AA8-71DC-414D-8CB3-7A96DBB0A32B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dust.ORM.Mysql", "Dust.ORM.Mysql\Dust.ORM.Mysql.csproj", "{56363AA8-71DC-414D-8CB3-7A96DBB0A32B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

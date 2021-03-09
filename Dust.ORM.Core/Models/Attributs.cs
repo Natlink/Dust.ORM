@@ -69,7 +69,7 @@ namespace Dust.ORM.Core.Models
 
         public PropertyAttribute(bool notNull = true, int size = 0, string defaultValue = null)
         {
-            if (defaultValue == null && !notNull) throw new DatabaseException("", "Default value can't be null if property can't be null too.");
+            if (defaultValue == null && notNull) throw new DatabaseException("", "Default value can't be null if property can't be null too.");
             NotNull = notNull;
             Size = size;
             DefaultValue = defaultValue;

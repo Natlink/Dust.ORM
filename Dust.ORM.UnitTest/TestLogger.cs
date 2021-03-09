@@ -6,7 +6,7 @@ using Xunit.Abstractions;
 
 namespace Dust.ORM.UnitTest
 {
-    class TestLogger : IORMLogger
+    public class TestLogger : IORMLogger
     {
 
         ITestOutputHelper Output;
