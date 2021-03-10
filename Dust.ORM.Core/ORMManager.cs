@@ -24,8 +24,7 @@ namespace Dust.ORM.Core
         {
             if(configurationFilename.IndexOfAny(new char[] { '*', '&', '#', '\\', '/', '\n', '\t'}) != -1)
             {
-                configurationFilename = "OrmConfiguration.xml";
-                logs.Log("ORMConfiguration file's name can't contains theses chars: * & # \\ / newLine tabulation\nReseted to default value: OrmConfiguration.xml");
+                throw new ORMException("ORMConfiguration file's name can't contains theses chars: * & # \\ / newLine tabulation.\nSubmited ormConfiguration file name: "+configurationFilename);
             }
 
             Logs = logs;
@@ -34,7 +33,6 @@ namespace Dust.ORM.Core
             DatabaseTypes = LoadDatabaseType();
 
             Config = LoadConfig(configurationFilename);
-            Logs.Log(Config.Configs[0].ToString());
         }
 
         public DataRepository<T> Get<T>() where T : DataModel, new()

@@ -21,7 +21,7 @@ namespace Dust.ORM.CoreTest.Models
         [Property(false, 10, null)] public T TestValue1 { get; set; }
         [Property(false, 10, null)] public T TestValue2 { get; set;}
 
-        public TestClass(T testValue1, T testValue2)
+        public TestClass(int id, T testValue1, T testValue2) : base(id)
         {
             TestValue1 = testValue1;
             TestValue2 = testValue2;

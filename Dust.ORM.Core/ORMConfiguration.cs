@@ -22,10 +22,9 @@ namespace Dust.ORM.Core
                 foreach (Type type in assembly.GetTypes())
                 {
 
-                    if (type.GetCustomAttributes(typeof(DatabaseConfigurationAttribute), true).Length > 0)
+                    if (type.GetCustomAttributes(typeof(DatabaseConfigurationAttribute), true).Length > 0 && !type.Equals(typeof(DatabaseConfiguration)))
                     {
-                        if (logs != null) logs.Log("Loaded configuration type: " + type);
-                        if(!type.Equals(typeof(DatabaseConfiguration))) Configs.Add((DatabaseConfiguration)Activator.CreateInstance(type));
+                        Configs.Add((DatabaseConfiguration)Activator.CreateInstance(type));
                     }
                 }
             }
