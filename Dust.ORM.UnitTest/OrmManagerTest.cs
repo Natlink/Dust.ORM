@@ -31,14 +31,21 @@ namespace Dust.ORM.CoreTest
 
             int id=5, testValue1 = 42, testValue2 = 100;
             Assert.True(repo.Insert(new TestClass<int>(id, testValue1, testValue2)));
+            Assert.False(repo.Insert(new TestClass<int>(id, testValue1, testValue2)));
 
             Assert.Equal(testValue1, repo.Get(id).TestValue1);
             Assert.Equal(testValue2, repo.Get(id).TestValue2);
 
+            Assert.False(repo.Edit(new TestClass<int>(0, 0, 0)));
+            Assert.True(repo.Edit(new TestClass<int>(id, testValue1 + 1, 100)));
+            Assert.Equal(testValue1 +1, repo.Get(id).TestValue1);
+
             Assert.True(repo.Delete(id));
             Assert.False(repo.Delete(id));
+            Assert.False(repo.Edit(new TestClass<int>(id, testValue1 + 1, 100)));
 
             Assert.Null(repo.Get(id));
+
         }
     }
 }
