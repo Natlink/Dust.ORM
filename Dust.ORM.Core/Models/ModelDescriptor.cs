@@ -42,6 +42,7 @@ namespace Dust.ORM.Core.Models
         {
             _Props[prop].Set(data, value);
         }
+
         public object GetValue(object data, string prop)
         {
             return _Props[prop].Get(data);

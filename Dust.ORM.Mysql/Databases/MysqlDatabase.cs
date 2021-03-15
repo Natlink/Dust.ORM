@@ -20,7 +20,6 @@ namespace Dust.ORM.Mysql.Database
         {
             Config = c;
 
-            Descriptor = model;
             ConnectionString = 
                 "Server=" + ((MysqlConfiguration) c).IP + 
                 ";port=" + ((MysqlConfiguration)c).Port +

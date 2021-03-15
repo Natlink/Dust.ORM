@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Dust.ORM.Core.Repositories
 {
-    public class DataRepository
+    public abstract class DataRepository
     {
 
         private Type InnerType;
@@ -16,7 +16,7 @@ namespace Dust.ORM.Core.Repositories
             InnerType = t;
         }
 
-        internal DataRepository<T> Cast<T>() where T : DataModel
+        internal DataRepository<T> Cast<T>() where T : DataModel, new()
         {
             try
             {
@@ -27,9 +27,12 @@ namespace Dust.ORM.Core.Repositories
             }
         }
 
+        public abstract bool Exist(int id);
+        public abstract object Get(int id);
+        
     }
 
-    public class DataRepository<T> : DataRepository, IDataRepository<T> where T : DataModel
+    public class DataRepository<T> : DataRepository, IDataRepository<T> where T : DataModel, new()
     {
         internal IDatabase<T> Database;
 
@@ -48,12 +51,12 @@ namespace Dust.ORM.Core.Repositories
             return Database.Edit(data);
         }
 
-        public bool Exist(int id)
+        public override bool Exist(int id)
         {
             return Database.Exist(id);
         }
 
-        public T Get(int id)
+        public override T Get(int id)
         {
             return Database.Get(id);
         }

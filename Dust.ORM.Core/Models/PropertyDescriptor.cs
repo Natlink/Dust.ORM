@@ -12,10 +12,13 @@ namespace Dust.ORM.Core.Models
         public Type PropertyType { get => _descriptor.PropertyType; }
 
         private PropertyInfo _descriptor;
-
         private PropertyAttribute _attribute;
+        private ForeignIDAttribute _foreignAttribute;
 
         public bool PrimaryKey { get => _attribute != null && _attribute.PrimaryKey; }
+        public bool ForeignKey { get => _foreignAttribute != null; }
+        public Type ForeignType { get => _foreignAttribute?.ForeignType; }
+
 
         public PropertyDescriptor(PropertyInfo p)
         {
@@ -23,9 +26,12 @@ namespace Dust.ORM.Core.Models
             
             foreach(Attribute a in _descriptor.GetCustomAttributes())
             {
-                if( a is PropertyAttribute)
-                    _attribute = a as PropertyAttribute;
+                if( a is PropertyAttribute)         _attribute = a as PropertyAttribute;
+                else if( a is ForeignIDAttribute)   _foreignAttribute = a as ForeignIDAttribute;
             }
+            if (PrimaryKey && ForeignKey) throw new PropertyException(this, "Property can't be a primary key and a foreign key at same time.");
+            if (ForeignKey && !PropertyType.IsPrimitive) throw new PropertyException(this, "This property with foreign ID attribute must be a primitive.");
+            
         }
 
         public object Get(object data)
@@ -37,6 +43,7 @@ namespace Dust.ORM.Core.Models
         {
             _descriptor.SetValue(data, value);
         }
+
 
         public override string ToString()
         {

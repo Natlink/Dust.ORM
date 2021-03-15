@@ -20,7 +20,6 @@ namespace Dust.ORM.CoreTest.Databases
         public TestDatabase(ModelDescriptor<T> model, DatabaseConfiguration c) : base(model, c)
         {
             Config = c;
-            Descriptor = model;
 
             if (c.ResetbaseOnStartup)
             {

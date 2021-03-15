@@ -5,8 +5,9 @@ using System.Text;
 
 namespace Dust.ORM.Core.Databases
 {
-    interface IDatabase<T> where T : DataModel
+    interface IDatabase<T> where T : DataModel, new()
     {
+        public ModelDescriptor<T> Descriptor { get; }
 
         public bool CreateTable();
         public bool ClearTable();

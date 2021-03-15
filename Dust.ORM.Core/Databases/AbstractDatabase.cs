@@ -7,7 +7,7 @@ namespace Dust.ORM.Core.Databases
 {
     public abstract class AbstractDatabase<T> : IDatabase<T> where T : DataModel, new()
     {
-        public ModelDescriptor<T> Descriptor;
+        public ModelDescriptor<T> Descriptor { get; private set; }
         public DatabaseConfiguration Config;
 
         protected AbstractDatabase(ModelDescriptor<T> descriptor, DatabaseConfiguration config)

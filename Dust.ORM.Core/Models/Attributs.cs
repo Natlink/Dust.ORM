@@ -27,17 +27,19 @@ namespace Dust.ORM.Core.Models
     }
 
     [AttributeUsage(AttributeTargets.Property)]
-    public class ModelIDAttribute : Attribute
-    {
-    }
-
     public class ForeignIDAttribute : Attribute
     {
-        public Type ForeignType;
+        public Type ForeignType { get; private set; }
+
         public ForeignIDAttribute(Type foreign)
         {
             ForeignType = foreign;
+            if (!ForeignType.IsAssignableTo(typeof(DataModel)))
+            {
+                throw new ORMException("Foreign ID Attribute property can only a DataModel sub-class type.");
+            }
         }
+
     }
 
     [AttributeUsage(AttributeTargets.Property)]
@@ -69,7 +71,7 @@ namespace Dust.ORM.Core.Models
 
         public PropertyAttribute(bool notNull = true, int size = 0, string defaultValue = null)
         {
-            if (defaultValue == null && notNull) throw new DatabaseException("", "Default value can't be null if property can't be null too.");
+            if (defaultValue == null && notNull) throw new ORMException("Default value can't be null if property can't be null too.");
             NotNull = notNull;
             Size = size;
             DefaultValue = defaultValue;

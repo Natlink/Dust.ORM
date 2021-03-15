@@ -24,7 +24,7 @@ namespace Dust.ORM.Core
         {
             if(configurationFilename.IndexOfAny(new char[] { '*', '&', '#', '\\', '/', '\n', '\t'}) != -1)
             {
-                throw new ORMException("ORMConfiguration file's name can't contains theses chars: * & # \\ / newLine tabulation.\nSubmited ormConfiguration file name: "+configurationFilename);
+                throw new ConfigurationException(null, "ORMConfiguration file's name can't contains theses chars: * & # \\ / newLine tabulation.\nSubmited ormConfiguration file name: "+configurationFilename);
             }
 
             Logs = logs;
@@ -33,25 +33,24 @@ namespace Dust.ORM.Core
             DatabaseTypes = LoadDatabaseType();
 
             Config = LoadConfig(configurationFilename);
+
         }
 
         public DataRepository<T> Get<T>() where T : DataModel, new()
         {
-            try
+            if (Repos.ContainsKey(typeof(T)))
             {
-                if (Repos.ContainsKey(typeof(T)))
-                {
-                    return Repos[typeof(T)].Cast<T>();
-                }
-                var repos = new DataRepository<T>(CreateDatabase<T>());
-                Repos.Add(typeof(T), repos);
-                return repos;
+                return Repos[typeof(T)].Cast<T>();
             }
-            catch(Exception e)
-            {
-                ErrorHandler(e);
-                return null;
-            }
+            var repos = new DataRepository<T>(CreateDatabase<T>());
+            Repos.Add(typeof(T), repos);
+            return repos;
+        }
+        public DataRepository GetGeneric(Type t)
+        {
+            MethodInfo GetMethod = GetType().GetMethod("Get");
+            var method = GetMethod.MakeGenericMethod(t);
+            return (DataRepository)method.Invoke(this, null);
         }
 
         private IDatabase<T> CreateDatabase<T>() where T: DataModel, new()
@@ -59,11 +58,11 @@ namespace Dust.ORM.Core
             if (DatabaseTypes.ContainsKey(Config.SelectedDatabase))
             {
                 DatabaseConfiguration c = Config.Configs.Find(p => p.Name.Equals(Config.SelectedDatabase));
-                if (c == null) throw new ORMException("No configuration founded for database type: " + Config.SelectedDatabase);
+                if (c == null) throw new ConfigurationException(Config, "No configuration founded for database type: " + Config.SelectedDatabase);
 
                 return (IDatabase<T>)Activator.CreateInstance(DatabaseTypes[Config.SelectedDatabase].MakeGenericType(typeof(T)), new ModelDescriptor<T>(), c);
             }
-            throw new ORMException("Not registered database type: " + Config.SelectedDatabase);
+            throw new ConfigurationException(Config, "Not registered database type: " + Config.SelectedDatabase);
         }
 
         private ORMConfiguration LoadConfig(string configurationFilename)
@@ -130,30 +129,18 @@ namespace Dust.ORM.Core
             return res;
         }
 
-        private void ErrorHandler(Exception e)
+        public void ResolveReference<T>(ref T model) where T : DataModel, new()
         {
-            if (e is ORMException)
+            ModelDescriptor<T> descriptor = Repos[typeof(T)].Cast<T>().Database.Descriptor;
+            foreach (var p in descriptor.Props)
             {
-                if (e is DatabaseException)
+                if (p.ForeignKey)
                 {
-                    Logs.Log(e.ToString());
+                    int id = (int)p.Get(model);
+                    DataRepository repo = GetGeneric(p.ForeignType);
+                    object refValue = repo.Get(id);
+                    descriptor.SetValue(model, p.Name + "_ref", refValue);
                 }
-                else if (e is RepositoryException)
-                {
-                    Logs.Log(e.ToString());
-                }
-                else if(e is PropertyException)
-                {
-                    Logs.Log(e.ToString());
-                }
-                else // e is ModelException<InnerType>
-                {
-                    Logs.Log(e.ToString());
-                }
-            }
-            else
-            {
-                Logs.Log(e.ToString());
             }
         }
     }

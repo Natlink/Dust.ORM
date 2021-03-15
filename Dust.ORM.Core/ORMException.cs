@@ -8,6 +8,17 @@ namespace Dust.ORM.Core
 {
     public class ORMException : Exception { public ORMException(string message) : base(message) { } }
 
+    public class ConfigurationException : ORMException
+    {
+        public ORMConfiguration Config;
+
+        public ConfigurationException(ORMConfiguration config, string message = "") : base(message)
+        {
+            Config = config;
+        }
+
+    }
+
     public class PropertyException : ORMException
     {
 
