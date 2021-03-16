@@ -43,17 +43,6 @@ namespace Dust.ORM.Core.Models
     }
 
     [AttributeUsage(AttributeTargets.Property)]
-    public class IgnoreDatabase : Attribute
-    {
-        public object DefaultValue;
-
-        public IgnoreDatabase(object defaultValue)
-        {
-            DefaultValue = defaultValue;
-        }
-    }
-
-    [AttributeUsage(AttributeTargets.Property)]
     public class PropertyAttribute : Attribute
     {
         public bool PrimaryKey;
@@ -78,8 +67,30 @@ namespace Dust.ORM.Core.Models
             PrimaryKey = false;
         }
 
-
     }
 
+    [AttributeUsage(AttributeTargets.Property)]
+    public class EnumerablePropertyAttribute : Attribute
+    {
+        public Type EnumerableType;
+        public string EntitySplitter;
+
+        public EnumerablePropertyAttribute(Type type, string splitter = "\\#")
+        {
+            EnumerableType = type;
+            EntitySplitter = splitter;
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Property)]
+    public class ParsablePropertyAttribute : Attribute
+    {
+        public string ParseMethodName;
+
+        public ParsablePropertyAttribute(string parseMethodName = "Parse")
+        {
+            ParseMethodName = parseMethodName;
+        }
+    }
 
 }

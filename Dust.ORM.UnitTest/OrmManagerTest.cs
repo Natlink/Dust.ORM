@@ -106,5 +106,43 @@ namespace Dust.ORM.CoreTest
             manager.ResolveReference(ref value2);
             Assert.Null(value2.LinkValue_ref);
         }
+
+        [Fact]
+        public void OrmManagerEnumerableTest()
+        {
+            ORMManager manager = new ORMManager(Log, "TestConfiguration.xml");
+
+            var repo1 = manager.Get<EnumerableModel>();
+
+            repo1.Insert(new EnumerableModel(0, new List<int>(new int[]{ 0, 1, 2, 3, 42 }), 50));
+            
+            var value1 = repo1.Get(0);
+
+            Assert.NotNull(value1.Datas);
+            Assert.Equal(5, value1.Datas.Count);
+
+            Assert.Equal(0, value1.Datas[0]);
+            Assert.Equal(1, value1.Datas[1]);
+            Assert.Equal(2, value1.Datas[2]);
+            Assert.Equal(3, value1.Datas[3]);
+            Assert.Equal(42, value1.Datas[4]);
+        }
+
+        [Fact]
+        public void OrmManagerParsableTest()
+        {
+            ORMManager manager = new ORMManager(Log, "TestConfiguration.xml");
+
+            var repo1 = manager.Get<ParsableModel>();
+
+            repo1.Insert(new ParsableModel(0, 50, new ParsableReference(100, 200, 300)));
+
+            var value1 = repo1.Get(0);
+            Assert.NotNull(value1.ParsableObject);
+
+            Assert.Equal(100, value1.ParsableObject.Value1);
+            Assert.Equal(200, value1.ParsableObject.Value2);
+            Assert.Equal(300, value1.ParsableObject.Value3);
+        }
     }
 }

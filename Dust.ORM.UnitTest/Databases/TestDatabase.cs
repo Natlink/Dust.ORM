@@ -15,7 +15,7 @@ namespace Dust.ORM.CoreTest.Databases
     class TestDatabase<T> : AbstractDatabase<T> where T : DataModel, new()
     {
 
-        private ConcurrentDictionary<int, T> Datas;
+        private ConcurrentDictionary<int, ConcurrentDictionary<string, object>> Datas;
 
         public TestDatabase(ModelDescriptor<T> model, DatabaseConfiguration c) : base(model, c)
         {
@@ -42,7 +42,7 @@ namespace Dust.ORM.CoreTest.Databases
 
         public override bool CreateTable()
         {
-            Datas = new ConcurrentDictionary<int, T>();
+            Datas = new ConcurrentDictionary<int, ConcurrentDictionary<string, object>>();
             return true;
         }
 
@@ -63,7 +63,14 @@ namespace Dust.ORM.CoreTest.Databases
         {
             if (Datas.ContainsKey(data.ID))
             {
-                Datas[data.ID] = data;
+                ConcurrentDictionary<string, object> obj = new ConcurrentDictionary<string, object>();
+
+                foreach (var p in Descriptor.Props)
+                {
+                    obj[p.Name] = p.Get(data);
+                }
+
+                Datas[data.ID] = obj;
                 return true;
             }
             return false;
@@ -76,24 +83,41 @@ namespace Dust.ORM.CoreTest.Databases
 
         public override T Get(int id)
         {
-            T res;
-            if (Datas.TryGetValue(id, out res)) return res;
+            ConcurrentDictionary<string, object> res;
+            if (Datas.TryGetValue(id, out res)) return Read(new TestDataReader(res));
             return null;
         }
 
         public override List<T> GetAll()
         {
-            return new List<T>(Datas.Values);
+            List<T> res = new List<T>();
+            T a = null;
+            var reader = new TestDataReader(Datas.Values.ToArray());
+            do
+            {
+                a = Read(reader);
+                if (a != null) res.Add(a);
+            } while (a != null);
+            return res;
         }
 
         public override T GetLast()
         {
-            return new List<T>(Datas.Values)[Datas.Values.Count - 1];
+            if (Datas.Values.Count == 0) return null;
+            var reader = new TestDataReader(Datas.Values.ToArray()[Datas.Values.Count - 1]);
+            return Read(reader);
         }
 
         public override bool Insert(T data)
         {
-            return Datas.TryAdd(data.ID, data);
+            ConcurrentDictionary<string, object> obj = new ConcurrentDictionary<string, object>();
+
+            foreach(var p in Descriptor.Props)
+            {
+                obj[p.Name] = p.Get(data);
+            }
+
+            return Datas.TryAdd(data.ID, obj);
         }
 
         public override T Read(IDataReader reader)
@@ -106,5 +130,55 @@ namespace Dust.ORM.CoreTest.Databases
         }
         #endregion DataUsage
 
+
     }
+
+    class TestDataReader : IDataReader
+    {
+        ConcurrentDictionary<string, object>[] Datas;
+        int Index;
+
+        public TestDataReader(params ConcurrentDictionary<string, object>[] datas)
+        {
+            Datas = datas;
+            Index = -1;
+        }
+
+        public void Dispose() {
+        }
+
+        public bool GetBool(string name)
+        {
+            return (bool)Datas[Index][name];
+        }
+
+        public DateTime GetDate(string name)
+        {
+            return (DateTime)Datas[Index][name];
+        }
+
+        public int GetInt(string name)
+        {
+            return (int)Datas[Index][name];
+        }
+
+
+        public string GetString(string name)
+        {
+            return (string)Datas[Index][name];
+        }
+
+        public bool Read()
+        {
+            Index++;
+            return Datas != null && Datas.Length > Index;
+        }
+
+        public object GetRaw(string name)
+        {
+            return Datas[Index][name];
+        }
+
+    }
+
 }
