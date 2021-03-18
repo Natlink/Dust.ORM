@@ -43,17 +43,23 @@ namespace Dust.ORM.Mysql.Database
 
             if (c.ResetbaseOnStartup)
             {
-                ClearTable();
+                DropTable();
             }
             CreateTable();
         }
 
 
         #region TableSetup
+        public bool DropTable()
+        {
+            // ExecuteUpdate("CREATE TABLE IF NOT EXISTS `" + Descriptor.ModelTypeName + "` (`ID` INT(11))");
+            return ExecuteUpdate("DROP TABLE IF EXISTS " + Descriptor.ModelTypeName + "") != 0;
+        }
+
         public override bool ClearTable()
         {
            // ExecuteUpdate("CREATE TABLE IF NOT EXISTS `" + Descriptor.ModelTypeName + "` (`ID` INT(11))");
-            return ExecuteUpdate("DROP TABLE IF EXISTS " + Descriptor.ModelTypeName+"") != 0;
+            return ExecuteUpdate("TRUNCATE TABLE " + Descriptor.ModelTypeName+"") != 0;
         }
 
         public override bool CreateTable()
@@ -138,12 +144,11 @@ namespace Dust.ORM.Mysql.Database
 
         public override bool Insert(T data)
         {
-            string statement = "INSERT INTO `" + Descriptor.ModelTypeName + "` ( "; // VALUES ('DD', '4')";
+            string statement = "INSERT INTO `" + Descriptor.ModelTypeName + "` ( "; 
             bool first = true;
             foreach(PropertyDescriptor p in Descriptor.Props)
             {
-                if (p.Name.Equals("ID") && ((int)Descriptor.GetValue(data, p.Name)) == -1) continue;
-                if (p.PropertyAttribute == null && !p.ForeignKey && !p.Enumerable && !p.Parsable) continue;
+                if (!p.ActiveProperty || (p.Name.Equals("ID") && ((int)Descriptor.GetValue(data, p.Name)) == -1)) continue;
                 statement += (first ? "" : ", ") + "`" + p.Name + "`";
                 first = false;
             }
@@ -151,8 +156,7 @@ namespace Dust.ORM.Mysql.Database
             first = true;
             foreach (PropertyDescriptor p in Descriptor.Props)
             {
-                if (p.Name.Equals("ID") && ((int)Descriptor.GetValue(data, p.Name)) == -1) continue;
-                if (p.PropertyAttribute == null && !p.ForeignKey && !p.Enumerable && !p.Parsable) continue;
+                if (!p.ActiveProperty || (p.Name.Equals("ID") && ((int)Descriptor.GetValue(data, p.Name)) == -1)) continue;
                 if (p.PropertyType.Equals(typeof(DateTime)))
                 {
                     statement += (first ? "" : ",") + " '" + ((DateTime)Descriptor.GetValue(data, p.Name)).ToString("yyyy-MM-dd HH:mm:ss") + "'";
@@ -166,6 +170,43 @@ namespace Dust.ORM.Mysql.Database
             statement += ")";
             return ExecuteInsert(statement) != 0;
         }
+
+        public override bool InsertAll(List<T> data, bool ID = false)
+        {
+            string statement = "INSERT INTO `" + Descriptor.ModelTypeName + "` ( ";
+            bool first = true;
+            foreach (PropertyDescriptor p in Descriptor.Props)
+            {
+                if (!ID && p.Name.Equals("ID")) continue;
+                statement += (first ? "" : ", ") + "`" + p.Name + "`";
+                first = false;
+            }
+            statement += ") VALUES ";
+            first = true;
+            foreach(T d in data)
+            {
+                if (first) first = false;
+                else statement += ",";
+                bool firstProp = true;
+                foreach (PropertyDescriptor p in Descriptor.Props)
+                {
+                    if (!ID && p.Name.Equals("ID")) continue;
+                    if (p.PropertyType.Equals(typeof(DateTime)))
+                    {
+                        statement += (firstProp ? "(" : ",") + " '" + ((DateTime)Descriptor.GetValue(d, p.Name)).ToString("yyyy-MM-dd HH:mm:ss") + "'";
+                    }
+                    else
+                    {
+                        statement += (firstProp ? "(" : ",") + " '" + Descriptor.GetValue(d, p.Name) + "'";
+                    }
+                    firstProp = false;
+                }
+                statement += ")";
+            }
+            return ExecuteInsert(statement) != 0;
+        }
+
+
         public override T Read(IDataReader reader)
         {
             if (reader.Read())

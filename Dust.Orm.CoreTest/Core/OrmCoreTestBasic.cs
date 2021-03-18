@@ -59,5 +59,20 @@ namespace Dust.ORM.CoreTest.Core
 
         }
 
+        [Fact]
+        public void TestBenchmark()
+        {
+            try
+            {
+                var res = Benchmark<TestClass<int>>(1, 10, 100, 1000, 10000);//, 10000);
+
+                Log.Log(BenchmarkToString<TestClass<int>>(res));
+            }
+            catch (Exception e)
+            {
+                Log.Log(e.ToString());
+            }
+        }
+
     }
 }

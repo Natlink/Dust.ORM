@@ -88,7 +88,7 @@ namespace Dust.ORM.Core.Models
             T res = new T();
             foreach(PropertyDescriptor p in Props)
             {
-                if (p.PropertyAttribute == null && !p.ForeignKey && !p.Enumerable && !p.Parsable) continue;
+                if (!p.ActiveProperty) continue;
                 p.Set(res, reader.GetRaw(p.Name));
             }
             return res;

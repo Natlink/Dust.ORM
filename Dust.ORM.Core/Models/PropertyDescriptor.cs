@@ -17,6 +17,8 @@ namespace Dust.ORM.Core.Models
         private EnumerablePropertyAttribute _enumerableAttribute;
         private ParsablePropertyAttribute _parsableAttribute;
 
+        public bool ActiveProperty { get => PrimaryKey || ForeignKey || Enumerable || Parsable || PropertyAttribute != null; }
+
         public bool PrimaryKey { get => PropertyAttribute != null && PropertyAttribute.PrimaryKey; }
         public bool ForeignKey { get => _foreignAttribute != null; }
         public Type ForeignType { get => _foreignAttribute?.ForeignType; }

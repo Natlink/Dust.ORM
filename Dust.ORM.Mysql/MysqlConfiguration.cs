@@ -20,7 +20,7 @@ namespace Dust.ORM.Mysql
         public int PoolSize = 1;
         public string Engine = "InnoDB";
         public string Charset = "utf8";
-        public bool DebugLog = true;
+        public bool DebugLog = false;
 
         public override string ToString()
         {

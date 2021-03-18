@@ -17,6 +17,7 @@ namespace Dust.ORM.Core.Databases
         public bool Exist(int id);
         public bool Delete(int id);
         public bool Insert(T data);
+        public bool InsertAll(List<T> data, bool ID = false);
         public T GetLast();
         public bool Edit(T data);
         public T Read(IDataReader reader);

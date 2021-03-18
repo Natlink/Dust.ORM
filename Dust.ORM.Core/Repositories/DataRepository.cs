@@ -91,5 +91,15 @@ namespace Dust.ORM.Core.Repositories
                 return false;
             }
         }
+
+        public bool Clear()
+        {
+            return Database.ClearTable();
+        }
+
+        public bool InsertAll(List<T> data, bool ID = false)
+        {
+            return Database.InsertAll(data, ID);
+        }
     }
 }

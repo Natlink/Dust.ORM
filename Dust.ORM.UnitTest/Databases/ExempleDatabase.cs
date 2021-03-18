@@ -120,6 +120,22 @@ namespace Dust.ORM.CoreTest.Databases
             return Datas.TryAdd(data.ID, obj);
         }
 
+        public override bool InsertAll(List<T> data, bool ID = false)
+        {
+
+            bool res = true;
+            foreach(T d in data)
+            {
+                ConcurrentDictionary<string, object> obj = new ConcurrentDictionary<string, object>();
+                foreach (var p in Descriptor.Props)
+                {
+                    obj[p.Name] = p.Get(d);
+                }
+                res = res && Datas.TryAdd(d.ID, obj);
+            }
+            return res;
+        }
+
         public override T Read(IDataReader reader)
         {
             if (reader.Read())

@@ -12,7 +12,9 @@ namespace Dust.ORM.Core.Repositories
         public bool Exist(int id);
         public bool Delete(int id);
         public bool Insert(T data);
+        public bool InsertAll(List<T> data, bool ID = false);
         public T GetLast();
         public bool Edit(T data);
+        public bool Clear();
     }
 }
