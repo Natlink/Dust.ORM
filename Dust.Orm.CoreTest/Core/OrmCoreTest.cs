@@ -63,6 +63,7 @@ namespace Dust.ORM.CoreTest.Core
             repo.Insert(new T());
             watch.Stop();
             res2 = watch.Elapsed;
+            repo.Clear();
             return (res1, res2, quantity, res);
         }
 
