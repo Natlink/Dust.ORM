@@ -21,7 +21,7 @@ namespace Dust.ORM.Core.Models
         public ModelDescriptor(Type modelType)
         {
             ModelType = modelType;
-            ModelTypeName = modelType.Name;
+            ModelTypeName = modelType.Name.Replace('`', '_');
             Attributes = new List<Attribute>();
             _Props = new Dictionary<string, PropertyDescriptor>();
 
@@ -88,6 +88,7 @@ namespace Dust.ORM.Core.Models
             T res = new T();
             foreach(PropertyDescriptor p in Props)
             {
+                if (p.PropertyAttribute == null && !p.ForeignKey && !p.Enumerable && !p.Parsable) continue;
                 p.Set(res, reader.GetRaw(p.Name));
             }
             return res;

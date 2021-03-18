@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Dust.ORM.CoreTest.Databases
 {
-    public class TestConfiguration : DatabaseConfiguration
+    public class ExempleDatabaseConfiguration : DatabaseConfiguration
     {
-        public override string Name { get; set; } = "test";
+        public override string Name { get; set; } = "exemple";
 
     }
 }

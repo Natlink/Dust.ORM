@@ -8,32 +8,19 @@ using Xunit.Abstractions;
 
 namespace Dust.ORM.CoreTest.Models
 {
-    public class ModelTest
+
+    internal class TestClass<T> : DataModel
     {
-        private readonly TestLogger Log;
-        public ModelTest(ITestOutputHelper output)
+        [Property(false, 10, null)] public T TestValue1 { get; set; }
+        [Property(false, 10, null)] public T TestValue2 { get; set; }
+
+        public TestClass(int id, T testValue1, T testValue2) : base(id)
         {
-            Log = new TestLogger(output);
+            TestValue1 = testValue1;
+            TestValue2 = testValue2;
         }
 
-        [Theory]
-        [MemberData(nameof(ModelDescriptorElements.ModelDescriptorTestCase), MemberType = typeof(ModelDescriptorElements))]
-        public void ModelCreationTest(DataModel model)
-        {
-            ModelDescriptor descriptor = null;
-            try
-            {
-                descriptor = new ModelDescriptor(model.GetType());
-                Log.Log(descriptor.ToString());
-            }catch(Exception e)
-            {
-                Log.Log(e.ToString());
-                Assert.False(true);
-            }
-            Assert.NotEmpty(descriptor.Props);
-            Assert.Equal(model.GetType(), descriptor.ModelType);
-        }
-
+        public TestClass() { TestValue1 = default; TestValue2 = default; }
     }
 
 

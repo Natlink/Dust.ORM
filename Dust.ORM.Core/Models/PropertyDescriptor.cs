@@ -12,12 +12,12 @@ namespace Dust.ORM.Core.Models
         public Type PropertyType { get => _descriptor.PropertyType; }
 
         private PropertyInfo _descriptor;
-        private PropertyAttribute _attribute;
+        public PropertyAttribute PropertyAttribute { get; private set; }
         private ForeignIDAttribute _foreignAttribute;
         private EnumerablePropertyAttribute _enumerableAttribute;
         private ParsablePropertyAttribute _parsableAttribute;
 
-        public bool PrimaryKey { get => _attribute != null && _attribute.PrimaryKey; }
+        public bool PrimaryKey { get => PropertyAttribute != null && PropertyAttribute.PrimaryKey; }
         public bool ForeignKey { get => _foreignAttribute != null; }
         public Type ForeignType { get => _foreignAttribute?.ForeignType; }
         public Type EnumerableType { get => _enumerableAttribute?.EnumerableType; }
@@ -30,7 +30,7 @@ namespace Dust.ORM.Core.Models
             
             foreach(Attribute a in _descriptor.GetCustomAttributes())
             {
-                if( a is PropertyAttribute)         _attribute = a as PropertyAttribute;
+                if( a is PropertyAttribute)         PropertyAttribute = a as PropertyAttribute;
                 if( a is ForeignIDAttribute)   _foreignAttribute = a as ForeignIDAttribute;
                 if( a is EnumerablePropertyAttribute)   _enumerableAttribute = a as EnumerablePropertyAttribute;
                 if( a is ParsablePropertyAttribute)   _parsableAttribute = a as ParsablePropertyAttribute;
@@ -122,40 +122,6 @@ namespace Dust.ORM.Core.Models
                 att += (att.Equals("")?"":", ") +a;
             }
             return Name + ": " + PropertyType.Name+ ( att.Equals("")? "" : " ["+att+"]");
-        }
-
-        
-
-        public string PrintMySQL()
-        {
-            if (_attribute == null) throw new PropertyException(this, "Every property need an attribute of type PropertyAttribute.");
-
-            string res = " `" + Name + "` ";
-            switch (PropertyType.Name)
-            {
-                case "Int32": res += " INT"; break;
-                case "Boolean": res += " BOOLEAN"; break;
-                case "String": res += " VARCHAR"; break;
-                case "DateTime": res += " DATETIME"; break;
-                default: throw new PropertyException(this, "Unmanaged type by MySQL ORM.");
-            }
-            if(_attribute.Size != 0)
-            {
-                res += "(" + _attribute.Size + ")";
-            }
-            if (_attribute.NotNull)
-            {
-                res += " NOT NULL ";
-            }
-            if (_attribute.PrimaryKey)
-            {
-                res += " AUTO_INCREMENT ";
-            }
-            if (_attribute.DefaultValue == null) res += "";
-            else if (_attribute.DefaultValue.Equals("NULL")) res += " DEFAULT NULL ";
-            else if (_attribute.DefaultValue.Equals("CURRENT_TIMESTAMP")) res += " DEFAULT CURRENT_TIMESTAMP ";
-            else res += " DEFAULT '"+ _attribute.DefaultValue+"' ";
-            return res;
         }
 
     }

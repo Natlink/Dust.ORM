@@ -131,6 +131,7 @@ namespace Dust.ORM.Core
 
         public void ResolveReference<T>(ref T model) where T : DataModel, new()
         {
+            if (model == null) throw new NullReferenceException("Model can't be null for resolving references.");
             ModelDescriptor<T> descriptor = Repos[typeof(T)].Cast<T>().Database.Descriptor;
             foreach (var p in descriptor.Props)
             {

@@ -11,13 +11,13 @@ using System.Threading.Tasks;
 namespace Dust.ORM.CoreTest.Databases
 {
 
-    [Database("test")]
-    class TestDatabase<T> : AbstractDatabase<T> where T : DataModel, new()
+    [Database("exemple")]
+    class ExempleDatabase<T> : AbstractDatabase<T> where T : DataModel, new()
     {
 
         private ConcurrentDictionary<int, ConcurrentDictionary<string, object>> Datas;
 
-        public TestDatabase(ModelDescriptor<T> model, DatabaseConfiguration c) : base(model, c)
+        public ExempleDatabase(ModelDescriptor<T> model, DatabaseConfiguration c) : base(model, c)
         {
             Config = c;
 

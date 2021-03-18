@@ -21,11 +21,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Dust.ORM.Core\Dust.ORM.Core.csproj" />
-    <ProjectReference Include="..\Dust.ORM.Mysql\Dust.ORM.Mysql.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Core\" />
   </ItemGroup>
 
 </Project>

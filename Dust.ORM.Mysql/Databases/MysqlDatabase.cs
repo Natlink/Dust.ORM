@@ -6,6 +6,7 @@ using Dust.ORM.Mysql;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace Dust.ORM.Mysql.Database
@@ -51,7 +52,8 @@ namespace Dust.ORM.Mysql.Database
         #region TableSetup
         public override bool ClearTable()
         {
-            return ExecuteUpdate("TRUNCATE TABLE "+Descriptor.ModelTypeName) != 0;
+           // ExecuteUpdate("CREATE TABLE IF NOT EXISTS `" + Descriptor.ModelTypeName + "` (`ID` INT(11))");
+            return ExecuteUpdate("DROP TABLE IF EXISTS " + Descriptor.ModelTypeName+"") != 0;
         }
 
         public override bool CreateTable()
@@ -61,11 +63,13 @@ namespace Dust.ORM.Mysql.Database
             string primaryKey = "";
             foreach (PropertyDescriptor p in Descriptor.Props)
             {
-                statement.Append((first ? "" : ",") + p.PrintMySQL());
+                string sqlProp = PrintMySQL(p);
+                if (sqlProp.Equals("")) continue;
+                statement.Append((first ? "" : ",\n") + sqlProp);
                 first = false;
                 if (p.PrimaryKey) primaryKey = ", PRIMARY KEY(`"+p.Name+"`)";
             }
-            statement.Append(primaryKey+" ) ENGINE = "+ ((MysqlConfiguration)Config).Engine + "  DEFAULT CHARSET = "+ ((MysqlConfiguration)Config).Charset+" COMMENT = 'Automaticaly created by ORM' AUTO_INCREMENT = 0;");
+            statement.Append(primaryKey+" ) \nENGINE = "+ ((MysqlConfiguration)Config).Engine + "  DEFAULT CHARSET = "+ ((MysqlConfiguration)Config).Charset+" COMMENT = 'Automaticaly created by ORM' AUTO_INCREMENT = 0;");
 
 
             return ExecuteUpdate(statement.ToString()) != 0;
@@ -138,7 +142,8 @@ namespace Dust.ORM.Mysql.Database
             bool first = true;
             foreach(PropertyDescriptor p in Descriptor.Props)
             {
-                if (p.Name.Equals("ID")) continue;
+                if (p.Name.Equals("ID") && ((int)Descriptor.GetValue(data, p.Name)) == -1) continue;
+                if (p.PropertyAttribute == null && !p.ForeignKey && !p.Enumerable && !p.Parsable) continue;
                 statement += (first ? "" : ", ") + "`" + p.Name + "`";
                 first = false;
             }
@@ -146,8 +151,9 @@ namespace Dust.ORM.Mysql.Database
             first = true;
             foreach (PropertyDescriptor p in Descriptor.Props)
             {
-                if (p.Name.Equals("ID")) continue;
-                if(p.PropertyType.Equals(typeof(DateTime)))
+                if (p.Name.Equals("ID") && ((int)Descriptor.GetValue(data, p.Name)) == -1) continue;
+                if (p.PropertyAttribute == null && !p.ForeignKey && !p.Enumerable && !p.Parsable) continue;
+                if (p.PropertyType.Equals(typeof(DateTime)))
                 {
                     statement += (first ? "" : ",") + " '" + ((DateTime)Descriptor.GetValue(data, p.Name)).ToString("yyyy-MM-dd HH:mm:ss") + "'";
                 }
@@ -195,6 +201,7 @@ namespace Dust.ORM.Mysql.Database
                             }
                             r.Close();
                             co.Close();
+                            DebugLog("V", querry);
                             return new MysqlDataReader(res);
                         }
                     }
@@ -202,6 +209,7 @@ namespace Dust.ORM.Mysql.Database
             }
             catch(Exception e)
             {
+                DebugLog("X", querry);
                 throw new DatabaseException(querry, e.GetType()+": "+e.Message);
             }
         }
@@ -216,12 +224,14 @@ namespace Dust.ORM.Mysql.Database
                     using (MySqlCommand cmd = new MySqlCommand(querry, co))
                     {
                         int res = cmd.ExecuteNonQuery();
+                        DebugLog("V", querry);
                         return res;
                     }
                 }
             }
             catch (Exception e)
             {
+                DebugLog("X", querry);
                 throw new DatabaseException(querry, e.GetType() + ": " + e.Message);
             }
         }
@@ -237,12 +247,14 @@ namespace Dust.ORM.Mysql.Database
                     {
                         int res = cmd.ExecuteNonQuery();
                         LastID = (int)cmd.LastInsertedId;
+                        DebugLog("V", querry);
                         return res;
                     }
                 }
             }
             catch (Exception e)
             {
+                DebugLog("X", querry);
                 throw new DatabaseException(querry, e.GetType() + ": " + e.Message);
             }
         }
@@ -250,5 +262,61 @@ namespace Dust.ORM.Mysql.Database
 
         #endregion SQLDriverCall
 
+
+        public string PrintMySQL(PropertyDescriptor p)
+        {
+            string res = "";
+            if (p.PropertyAttribute != null)
+            {
+                res = " `" + p.Name + "` ";
+                switch (p.PropertyType.Name)
+                {
+                    case "Int32": res += " INT"; break;
+                    case "Boolean": res += " BOOLEAN"; break;
+                    case "String": res += " VARCHAR"; break;
+                    case "DateTime": res += " DATETIME"; break;
+                    default: throw new PropertyException(p, "Unmanaged type by MySQL ORM.");
+                }
+                if (p.PropertyAttribute.Size != 0)
+                {
+                    res += "(" + p.PropertyAttribute.Size + ")";
+                }
+                if (p.PropertyAttribute.NotNull)
+                {
+                    res += " NOT NULL ";
+                }
+                if (p.PropertyAttribute.PrimaryKey)
+                {
+                    res += " AUTO_INCREMENT ";
+                }
+                if (p.PropertyAttribute.DefaultValue == null) res += "";
+                else if (p.PropertyAttribute.DefaultValue.Equals("NULL")) res += " DEFAULT NULL ";
+                else if (p.PropertyAttribute.DefaultValue.Equals("CURRENT_TIMESTAMP")) res += " DEFAULT CURRENT_TIMESTAMP ";
+                else res += " DEFAULT '" + p.PropertyAttribute.DefaultValue + "' ";
+            }
+            else if (p.ForeignKey)
+            {
+                res = " `" + p.Name + "`  INT (11) DEFAULT NULL";
+            }
+            else if (p.Parsable)
+            {
+                res = " `" + p.Name + "` VARCHAR (2048) DEFAULT NULL";
+            }
+            else if (p.Enumerable)
+            {
+                res = " `" + p.Name + "` VARCHAR (2048) DEFAULT NULL";
+            }
+            return res;
+        }
+
+        public void DebugLog(string head, string core)
+        {
+            if (((MysqlConfiguration)Config).DebugLog)
+                lock (mutex)
+                    File.AppendAllText("MYSQL_DEBUG.log", "[" + head + "] " + core + "\n");
+
+        }
+
+        private static object mutex = new();
     }
 }

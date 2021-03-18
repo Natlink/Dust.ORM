@@ -75,7 +75,7 @@ namespace Dust.ORM.Core.Models
         public Type EnumerableType;
         public string EntitySplitter;
 
-        public EnumerablePropertyAttribute(Type type, string splitter = "\\#")
+        public EnumerablePropertyAttribute(Type type, string splitter = "/#")
         {
             EnumerableType = type;
             EntitySplitter = splitter;
