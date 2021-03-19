@@ -5,6 +5,7 @@ using Dust.ORM.UnitTest;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -86,6 +87,17 @@ namespace Dust.ORM.CoreTest.Core
             res += "\n##########################################";
             return res;
         }
-
+        public string BenchmarkToCsv<T>((TimeSpan modelCreation, TimeSpan unique, int[] quantity, (TimeSpan store, TimeSpan getAll, TimeSpan clearAll)[]) benchmarkRes) where T : DataModel, new()
+        {
+            string res = "";
+            for (int i = 0; i < benchmarkRes.quantity.Length; ++i)
+            {
+                res += ("" + benchmarkRes.quantity[i]).PadLeft(10);
+                res += ";" + string.Format("{0:0.0000}", benchmarkRes.Item4[i].store.TotalSeconds).PadLeft(11);
+                res += ";" + string.Format("{0:0.0000}", benchmarkRes.Item4[i].getAll.TotalSeconds).PadLeft(11);
+                res += ";" + string.Format("{0:0.0000}", benchmarkRes.Item4[i].clearAll.TotalSeconds).PadLeft(11) + "\n";
+            }
+            return res;
+        }
     }
 }

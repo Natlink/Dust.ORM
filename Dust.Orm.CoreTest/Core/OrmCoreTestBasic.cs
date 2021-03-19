@@ -3,6 +3,7 @@ using Dust.ORM.CoreTest.Models;
 using Dust.ORM.UnitTest;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -59,14 +60,17 @@ namespace Dust.ORM.CoreTest.Core
 
         }
 
-        [Fact]
+       // [Fact]
         public void TestBenchmark()
         {
+            Directory.CreateDirectory("benchmarks");
             try
             {
-                var res = Benchmark<TestClass<int>>(1, 10, 100, 1000, 10000);//, 10000);
-
-                Log.Log(BenchmarkToString<TestClass<int>>(res));
+                for(int i = 0; i < 10; ++i)
+                {
+                    var res = Benchmark<ParsableModel>(1, 10, 100, 1000, 10000);
+                    File.AppendAllText("benchmarks/TestClass.csv", BenchmarkToCsv<TestClass<int>>(res));
+                }
             }
             catch (Exception e)
             {

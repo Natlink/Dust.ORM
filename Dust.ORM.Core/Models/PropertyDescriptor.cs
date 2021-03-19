@@ -43,6 +43,7 @@ namespace Dust.ORM.Core.Models
 
         public object Get(object data)
         {
+            if (data == null) return null;
             if (Enumerable)
             {
                 object enumerable = Activator.CreateInstance(PropertyType);
@@ -53,7 +54,7 @@ namespace Dust.ORM.Core.Models
             }
             else if (Parsable)
             {
-                return _descriptor.GetValue(data).ToString();
+                return _descriptor.GetValue(data)?.ToString();
             }
             else
             {
@@ -82,7 +83,9 @@ namespace Dust.ORM.Core.Models
             }
             else if (Parsable)
             {
-                _descriptor.SetValue(data, PropertyType.GetMethod("Parse", new Type[] { typeof(string) }).Invoke(null, new object[] { value }));
+                string toParse = (string)value;
+                object res = toParse == null || toParse.Equals("") || toParse.Equals("null") ? null : PropertyType.GetMethod("Parse", new Type[] { typeof(string) }).Invoke(null, new object[] { value });
+                _descriptor.SetValue(data, res);
             }
             else
             {

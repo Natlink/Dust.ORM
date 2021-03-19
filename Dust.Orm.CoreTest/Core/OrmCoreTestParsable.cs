@@ -18,7 +18,7 @@ namespace Dust.ORM.CoreTest.Core
         }
 
         [Fact]
-        public void OrmManagerParsableTest()
+        public void SimpleParsableTest()
         {
             SetupOrm();
             Assert.NotNull(Manager);
@@ -36,6 +36,31 @@ namespace Dust.ORM.CoreTest.Core
                 Assert.Equal(100, value1.ParsableObject.Value1);
                 Assert.Equal(200, value1.ParsableObject.Value2);
                 Assert.Equal(300, value1.ParsableObject.Value3);
+            }
+            catch (ORMException e)
+            {
+                Log.Log(e.ToString());
+                Assert.True(false);
+            }
+        }
+
+        [Fact]
+        public void NullParsableTest()
+        {
+            SetupOrm();
+            Assert.NotNull(Manager);
+
+            try
+            {
+                var repo1 = Manager.Get<ParsableModel>();
+
+                Assert.False(repo1.Insert(null));
+
+                Assert.True(repo1.Insert(new ParsableModel(1, 50, null)));
+
+                var value1 = repo1.Get(1);
+                Assert.NotNull(value1);
+                Assert.Null(value1.ParsableObject);
             }
             catch (ORMException e)
             {

@@ -81,6 +81,7 @@ namespace Dust.ORM.Core.Repositories
 
         public bool Insert(T data)
         {
+            if (data == null) return false;
             try
             {
                 return Database.Insert(data);
