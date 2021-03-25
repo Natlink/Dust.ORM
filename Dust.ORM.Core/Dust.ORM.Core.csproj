@@ -4,4 +4,10 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Reference Include="Dust.Utils.Core">
+      <HintPath>..\..\Dust.Utils\Dust.Utils.Core\bin\Debug\net5.0\Dust.Utils.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

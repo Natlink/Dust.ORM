@@ -44,7 +44,7 @@ namespace Dust.ORM.CoreTest.Core
             }
             catch (ORMException e)
             {
-                Log.Log(e.ToString());
+                Log.Info(e.ToString());
                 Assert.True(false);
             }
         }

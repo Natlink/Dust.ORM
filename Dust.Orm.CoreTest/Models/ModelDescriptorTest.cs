@@ -24,11 +24,11 @@ namespace Dust.ORM.CoreTest.Models
             try
             {
                 descriptor = new ModelDescriptor(model.GetType());
-                Log.Log(descriptor.ToString());
+                Log.Info(descriptor.ToString());
             }
             catch (Exception e)
             {
-                Log.Log(e.ToString());
+                Log.Info(e.ToString());
                 Assert.False(true);
             }
             Assert.NotEmpty(descriptor.Props);

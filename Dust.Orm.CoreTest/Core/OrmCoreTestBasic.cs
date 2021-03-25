@@ -1,6 +1,5 @@
 ﻿using Dust.ORM.Core;
 using Dust.ORM.CoreTest.Models;
-using Dust.ORM.UnitTest;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -54,7 +53,7 @@ namespace Dust.ORM.CoreTest.Core
             }
             catch(ORMException e)
             {
-                Log.Log(e.ToString());
+                Log.Info(e.ToString());
                 Assert.True(false);
             }
 
@@ -74,7 +73,7 @@ namespace Dust.ORM.CoreTest.Core
             }
             catch (Exception e)
             {
-                Log.Log(e.ToString());
+                Log.Info(e.ToString());
             }
         }
 

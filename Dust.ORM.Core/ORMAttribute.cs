@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Dust.Utils.Core.Config;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -17,7 +18,7 @@ namespace Dust.ORM.Core
     }
 
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-    public class DatabaseConfigurationAttribute : Attribute
+    public class DatabaseConfigurationAttribute : ModuleConfigAttribute
     {
     }
 }

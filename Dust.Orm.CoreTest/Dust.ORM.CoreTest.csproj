@@ -23,4 +23,10 @@
     <ProjectReference Include="..\Dust.ORM.Core\Dust.ORM.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Dust.Utils.Core">
+      <HintPath>..\..\Dust.Utils\Dust.Utils.Core\bin\Debug\net5.0\Dust.Utils.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

@@ -11,5 +11,10 @@ namespace Dust.ORM.CoreTest.Databases
     {
         public override string Name { get; set; } = "exemple";
 
+
+        public ExempleDatabaseConfiguration()
+            : base("exemple", true)
+        {
+        }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Dust.ORM.Core.Databases;
 using Dust.ORM.Core.Models;
 using Dust.ORM.Core.Repositories;
+using Dust.Utils.Core.Config;
+using Dust.Utils.Core.Logs;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,15 +14,23 @@ namespace Dust.ORM.Core
 {
     public class ORMManager
     {
-        public IORMLogger Logs;
+        public ILogger Logs;
 
         public ORMConfiguration Config;
         
         private Dictionary<Type, DataRepository> Repos;
         private Dictionary<string, Type> DatabaseTypes;
 
+        public ORMManager(ILogger logs, ORMConfiguration config)
+        {
+            Logs = logs;
 
-        public ORMManager(IORMLogger logs, string configurationFilename = "OrmConfiguration.xml")
+            Repos = new Dictionary<Type, DataRepository>();
+            DatabaseTypes = LoadDatabaseType();
+            Config = config;
+        }
+
+        public ORMManager(ILogger logs, string configurationFilename = "OrmConfiguration.xml")
         {
             if(configurationFilename.IndexOfAny(new char[] { '*', '&', '#', '\\', '/', '\n', '\t'}) != -1)
             {
@@ -32,7 +42,7 @@ namespace Dust.ORM.Core
             Repos = new Dictionary<Type, DataRepository>();
             DatabaseTypes = LoadDatabaseType();
 
-            Config = LoadConfig(configurationFilename);
+            Config = ConfigLoader.Load<ORMConfiguration>(configurationFilename, Logs);
 
         }
 
@@ -63,53 +73,6 @@ namespace Dust.ORM.Core
                 return (IDatabase<T>)Activator.CreateInstance(DatabaseTypes[Config.SelectedDatabase].MakeGenericType(typeof(T)), new ModelDescriptor<T>(), c);
             }
             throw new ConfigurationException(Config, "Not registered database type: " + Config.SelectedDatabase);
-        }
-
-        private ORMConfiguration LoadConfig(string configurationFilename)
-        {
-            var configsType = new List<Type>();
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-                foreach (Type type in assembly.GetTypes())
-                    if (type.GetCustomAttributes(typeof(DatabaseConfigurationAttribute), true).Length > 0 && !type.Equals(typeof(DatabaseConfiguration)))
-                        configsType.Add(type);
-             
-            XmlSerializer serial = new XmlSerializer(typeof(ORMConfiguration), configsType.ToArray());
-
-            if (!File.Exists(configurationFilename))
-            {
-                return GenerateConfiguration(configurationFilename, serial);
-            }
-            try
-            {
-                using(FileStream s = new FileStream(configurationFilename, FileMode.Open))
-                {
-                    return (ORMConfiguration)serial.Deserialize(s);
-                }
-            } catch(Exception e)
-            {
-                Logs.Log("Exception while loading ORMConfiguration.\n" + e.ToString()+"\nConfiguration reseted to default values. Old configuration saved to old_"+configurationFilename);
-
-                try
-                {
-                    File.Copy(configurationFilename, "old_" + configurationFilename, true);
-                    File.Delete(configurationFilename);
-                } catch(Exception ee)
-                {
-                    Logs.Log("Exception while backing-up ORMConfiguration.\n" + ee.ToString() + "\nConfiguration reseted to default values. Old configuration not saved.");
-                }
-                
-                return GenerateConfiguration(configurationFilename, serial);
-            }
-        }
-
-        private ORMConfiguration GenerateConfiguration(string configurationFilename, XmlSerializer serial)
-        {
-            using (FileStream s = new FileStream(configurationFilename, FileMode.Create))
-            {
-                var res = new ORMConfiguration(Logs);
-                serial.Serialize(s, res);
-                return res;
-            }
         }
 
         private Dictionary<string, Type> LoadDatabaseType()

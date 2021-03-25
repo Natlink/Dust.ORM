@@ -41,13 +41,8 @@ namespace Dust.ORM.CoreTest
             manager.Config.SelectedDatabase = "test"; // Correct database name
             Assert.Throws<ConfigurationException>(() => manager.Get<TestClass<int>>());
 
-            manager = new ORMManager(Log, "CONFIG_UNREADABLE.xml");
-            Assert.True(File.Exists("CONFIG_UNREADABLE.xml"));
-            Assert.True(File.Exists("old_CONFIG_UNREADABLE.xml"));
+            Assert.Throws<InvalidOperationException>(() => manager = new ORMManager(Log, "CONFIG_UNREADABLE.xml"));
 
-            File.Delete("CONFIG_OK.xml");
-            File.Delete("CONFIG_UNREADABLE.xml");
-            File.Delete("old_CONFIG_UNREADABLE.xml");
         }
 
     }

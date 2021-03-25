@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 namespace Dust.ORM.Mysql
 {
 
+    [Serializable]
     public class MysqlConfiguration : DatabaseConfiguration
     {
         public override string Name { get; set; } = "mysql";
@@ -21,6 +22,25 @@ namespace Dust.ORM.Mysql
         public string Engine = "InnoDB";
         public string Charset = "utf8";
         public bool DebugLog = false;
+
+        public MysqlConfiguration() : base("mysql", false)
+        {
+        }
+
+        public MysqlConfiguration(string iP, int port, string database, string username, string password, bool pooling, int poolSize, string engine, string charset, bool debugLog, bool resetBase) 
+            : base("mysql", resetBase)
+        {
+            IP = iP;
+            Port = port;
+            Database = database;
+            Username = username;
+            Password = password;
+            Pooling = pooling;
+            PoolSize = poolSize;
+            Engine = engine;
+            Charset = charset;
+            DebugLog = debugLog;
+        }
 
         public override string ToString()
         {
