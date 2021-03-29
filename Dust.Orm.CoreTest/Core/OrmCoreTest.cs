@@ -50,7 +50,7 @@ namespace Dust.ORM.CoreTest.Core
                 watch.Stop();
                 res[y].store = watch.Elapsed;
                 watch.Restart();
-                List<T> vars = repo.GetAll();
+                List<T> vars = repo.GetAll(0);
                 watch.Stop();
                 res[y].getAll = watch.Elapsed;
                 Assert.Equal(quantity[y], vars.Count);

@@ -88,7 +88,7 @@ namespace Dust.ORM.CoreTest.Databases
             return null;
         }
 
-        public override List<T> GetAll()
+        public override List<T> GetAll(int row)
         {
             List<T> res = new List<T>();
             T a = null;
@@ -98,6 +98,8 @@ namespace Dust.ORM.CoreTest.Databases
                 a = Read(reader);
                 if (a != null) res.Add(a);
             } while (a != null);
+            res.RemoveRange(0, row);
+            res.RemoveRange(Config.GetAllSize, res.Count-Config.GetAllSize);
             return res;
         }
 

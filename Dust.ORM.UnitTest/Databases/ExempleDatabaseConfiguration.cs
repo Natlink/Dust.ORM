@@ -13,7 +13,7 @@ namespace Dust.ORM.CoreTest.Databases
 
 
         public ExempleDatabaseConfiguration()
-            : base("exemple", true)
+            : base("exemple", true, 20)
         {
         }
     }

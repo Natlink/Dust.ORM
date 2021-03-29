@@ -61,11 +61,11 @@ namespace Dust.ORM.Core.Repositories
             return Database.Get(id);
         }
 
-        public List<T> GetAll()
+        public List<T> GetAll(int row)
         {
             try
             {
-                return Database.GetAll();
+                return Database.GetAll(row);
             }
             catch (DatabaseException e)
             {

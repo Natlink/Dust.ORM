@@ -124,11 +124,11 @@ namespace Dust.ORM.Mysql.Database
             return Read(ExecuteReader("SELECT * FROM `"+Descriptor.ModelTypeName+"` WHERE `ID` = "+id));
         }
 
-        public override List<T> GetAll()
+        public override List<T> GetAll(int row)
         {
             List<T> res = new List<T>();
             T a = null;
-            var reader = ExecuteReader("SELECT * FROM `" + Descriptor.ModelTypeName + "`");
+            var reader = ExecuteReader("SELECT * FROM `" + Descriptor.ModelTypeName + "` LIMIT "+row+","+Config.GetAllSize);
             do
             {
                 a = Read(reader);

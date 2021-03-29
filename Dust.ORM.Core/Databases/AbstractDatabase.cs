@@ -30,7 +30,7 @@ namespace Dust.ORM.Core.Databases
 
         public abstract T Get(int id);
 
-        public abstract List<T> GetAll();
+        public abstract List<T> GetAll(int row);
 
         public abstract T GetLast();
 

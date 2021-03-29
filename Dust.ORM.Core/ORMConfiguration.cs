@@ -51,11 +51,13 @@ namespace Dust.ORM.Core
     public abstract class DatabaseConfiguration {
         public abstract string Name { get; set; }
         public bool ResetbaseOnStartup = false;
+        public int GetAllSize = 20;
 
-        protected DatabaseConfiguration(string name, bool resetbaseOnStartup)
+        protected DatabaseConfiguration(string name, bool resetbaseOnStartup, int getAllSize)
         {
             Name = name;
             ResetbaseOnStartup = resetbaseOnStartup;
+            GetAllSize = getAllSize;
         }
 
     }

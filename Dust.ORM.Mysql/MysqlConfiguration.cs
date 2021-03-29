@@ -23,12 +23,12 @@ namespace Dust.ORM.Mysql
         public string Charset = "utf8";
         public bool DebugLog = false;
 
-        public MysqlConfiguration() : base("mysql", false)
+        public MysqlConfiguration() : base("mysql", false, 20)
         {
         }
 
-        public MysqlConfiguration(string iP, int port, string database, string username, string password, bool pooling, int poolSize, string engine, string charset, bool debugLog, bool resetBase) 
-            : base("mysql", resetBase)
+        public MysqlConfiguration(string iP, int port, string database, string username, string password, bool pooling, int poolSize, string engine, string charset, bool debugLog, bool resetBase, int getAllSize) 
+            : base("mysql", resetBase, getAllSize)
         {
             IP = iP;
             Port = port;

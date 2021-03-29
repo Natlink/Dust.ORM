@@ -7,7 +7,7 @@ namespace Dust.ORM.Core.Repositories
 {
     interface IDataRepository<T> where T : DataModel
     {
-        public List<T> GetAll();
+        public List<T> GetAll(int row);
         public T Get(int id);
         public bool Exist(int id);
         public bool Delete(int id);
