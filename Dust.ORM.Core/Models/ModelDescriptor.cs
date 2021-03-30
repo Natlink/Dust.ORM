@@ -16,7 +16,8 @@ namespace Dust.ORM.Core.Models
 
         public List<Attribute> Attributes { get; protected set; }
         public IEnumerable<PropertyDescriptor> Props { get { return _Props.Values; } }
-
+        
+        internal bool AutoResolveReference;
 
         public ModelDescriptor(Type modelType)
         {
@@ -34,7 +35,9 @@ namespace Dust.ORM.Core.Models
             }
             foreach (PropertyInfo p in ModelType.GetProperties())
             {
-                _Props.Add(p.Name, new PropertyDescriptor(p));
+                var pp = new PropertyDescriptor(p);
+                _Props.Add(p.Name, pp);
+                if (pp.ForeignKey) AutoResolveReference = true;
             }
         }
 

@@ -58,20 +58,17 @@ namespace Dust.ORM.Core.Repositories
 
         public override T Get(int id)
         {
-            return Database.Get(id);
+            T res = Database.Get(id);
+
+            if (Database.Descriptor.AutoResolveReference) ORMManager.Singleton.ResolveReference<T>(ref res);
+            return res; 
         }
 
         public List<T> GetAll(int row)
         {
-            try
-            {
-                return Database.GetAll(row);
-            }
-            catch (DatabaseException e)
-            {
-                Console.WriteLine(e);
-                return new List<T>();
-            }
+            List<T> res = Database.GetAll(row);
+            if (Database.Descriptor.AutoResolveReference) ORMManager.Singleton.ResolveReference<T>(ref res);
+            return res;
         }
 
         public T GetLast()
@@ -81,14 +78,12 @@ namespace Dust.ORM.Core.Repositories
 
         public bool Insert(T data)
         {
-            if (data == null) return false;
             try
             {
+                if (data == null) return false;
                 return Database.Insert(data);
-            }
-            catch(DatabaseException e)
+            }catch(Exception)
             {
-                Console.WriteLine(e);
                 return false;
             }
         }

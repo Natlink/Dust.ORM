@@ -34,13 +34,11 @@ namespace Dust.ORM.CoreTest.Core
                 Assert.True(repo1.Insert(new ReferenceModel(1, 4200, subReferenceID, null))); // null is type of SubReferenceModel
 
                 var value1 = repo1.Get(1);
-                Manager.ResolveReference(ref value1);
 
                 Assert.NotNull(value1.LinkValue_ref);
 
                 repo1.Insert(new ReferenceModel(2, 4200, 100, null)); // 100 is not present in database
                 var value2 = repo1.Get(2);
-                Manager.ResolveReference(ref value2);
                 Assert.Null(value2.LinkValue_ref);
             }
             catch (ORMException e)

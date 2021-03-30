@@ -14,17 +14,23 @@ namespace Dust.ORM.Core
 {
     public class ORMManager
     {
+        internal static ORMManager Singleton;
         public ILogger Logs;
 
         public ORMConfiguration Config;
-        
+
+
         private Dictionary<Type, DataRepository> Repos;
         private Dictionary<string, Type> DatabaseTypes;
 
         public ORMManager(ILogger logs, ORMConfiguration config)
         {
             Logs = logs;
-
+            if(Singleton != null)
+            {
+                Logs.Warning("Only one instance of ORMManager should be available at a time.");
+            }
+            Singleton = this;
             Repos = new Dictionary<Type, DataRepository>();
             DatabaseTypes = LoadDatabaseType();
             Config = config;
@@ -32,12 +38,17 @@ namespace Dust.ORM.Core
 
         public ORMManager(ILogger logs, string configurationFilename = "OrmConfiguration.xml")
         {
-            if(configurationFilename.IndexOfAny(new char[] { '*', '&', '#', '\\', '/', '\n', '\t'}) != -1)
+            Logs = logs;
+            if (configurationFilename.IndexOfAny(new char[] { '*', '&', '#', '\\', '/', '\n', '\t'}) != -1)
             {
                 throw new ConfigurationException(null, "ORMConfiguration file's name can't contains theses chars: * & # \\ / newLine tabulation.\nSubmited ormConfiguration file name: "+configurationFilename);
             }
+            if (Singleton != null)
+            {
+                Logs.Warning("Only one instance of ORMManager should be available at a time.");
+            }
+            Singleton = this;
 
-            Logs = logs;
 
             Repos = new Dictionary<Type, DataRepository>();
             DatabaseTypes = LoadDatabaseType();
@@ -92,10 +103,11 @@ namespace Dust.ORM.Core
             return res;
         }
 
-        public void ResolveReference<T>(ref T model) where T : DataModel, new()
+        internal void ResolveReference<T>(ref T model) where T : DataModel, new()
         {
-            if (model == null) throw new NullReferenceException("Model can't be null for resolving references.");
-            ModelDescriptor<T> descriptor = Repos[typeof(T)].Cast<T>().Database.Descriptor;
+            if (model == null) throw new NullReferenceException("ORM Trying to resolve references on a null object.");
+            ModelDescriptor<T> descriptor = Get<T>().Database.Descriptor;
+
             foreach (var p in descriptor.Props)
             {
                 if (p.ForeignKey)
@@ -104,6 +116,25 @@ namespace Dust.ORM.Core
                     DataRepository repo = GetGeneric(p.ForeignType);
                     object refValue = repo.Get(id);
                     descriptor.SetValue(model, p.Name + "_ref", refValue);
+                }
+            }
+        }
+
+        internal void ResolveReference<T>(ref List<T> modelList) where T : DataModel, new()
+        {
+            if (modelList == null) throw new NullReferenceException("ORM Trying to resolve references on a null object.");
+            ModelDescriptor<T> descriptor = Get<T>().Database.Descriptor;
+            foreach (var p in descriptor.Props)
+            {
+                if (p.ForeignKey)
+                {
+                    DataRepository repo = GetGeneric(p.ForeignType);
+                    foreach(T tt in modelList)
+                    {
+                        int id = (int)p.Get(tt);
+                        object refValue = repo.Get(id);
+                        descriptor.SetValue(tt, p.Name + "_ref", refValue);
+                    }
                 }
             }
         }

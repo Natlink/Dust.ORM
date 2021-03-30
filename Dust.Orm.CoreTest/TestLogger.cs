@@ -29,13 +29,13 @@ namespace Dust.ORM.UnitTest
         public void Warning(string data, Exception ex = null)
         {
             Output.WriteLine(data);
-            Output.WriteLine(ex.ToString());
+            if(ex != null) Output.WriteLine(ex.ToString());
         }
 
         public void Error(string data, Exception ex = null)
         {
-            Output.WriteLine(data);
-            Output.WriteLine(ex.ToString());
+            Output.WriteLine(data); 
+            if (ex != null) Output.WriteLine(ex.ToString());
         }
     }
 }

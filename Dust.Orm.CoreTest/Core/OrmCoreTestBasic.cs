@@ -36,7 +36,6 @@ namespace Dust.ORM.CoreTest.Core
                 Assert.False(repo.Insert(new TestClass<int>(id, testValue1, testValue2)));
 
                 TestClass<int> value = repo.Get(id);
-                Manager.ResolveReference(ref value);
 
                 Assert.Equal(testValue1, value.TestValue1);
                 Assert.Equal(testValue2, value.TestValue2);
