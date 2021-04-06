@@ -12,7 +12,7 @@ namespace Dust.ORM.Core.Databases
         public bool CreateTable();
         public bool ClearTable();
         public bool DeleteTable();
-        public List<T> GetAll(int row);
+        public List<T> GetAll(int row = -1);
         public T Get(int id);
         public bool Exist(int id);
         public bool Delete(int id);

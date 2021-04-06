@@ -64,7 +64,7 @@ namespace Dust.ORM.Core.Repositories
             return res; 
         }
 
-        public List<T> GetAll(int row)
+        public List<T> GetAll(int row = -1)
         {
             List<T> res = Database.GetAll(row);
             if (Database.Descriptor.AutoResolveReference) ORMManager.Singleton.ResolveReference<T>(ref res);
@@ -80,8 +80,7 @@ namespace Dust.ORM.Core.Repositories
         {
             try
             {
-                if (data == null) return false;
-                return Database.Insert(data);
+                return data != null && Database.Insert(data);
             }catch(Exception)
             {
                 return false;
@@ -94,8 +93,8 @@ namespace Dust.ORM.Core.Repositories
         }
 
         public bool InsertAll(List<T> data, bool ID = false)
-        {
-            return Database.InsertAll(data, ID);
+        { 
+            return data.Count != 0 && Database.InsertAll(data, ID);
         }
     }
 }

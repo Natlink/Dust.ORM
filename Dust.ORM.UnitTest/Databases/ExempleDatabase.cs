@@ -16,6 +16,7 @@ namespace Dust.ORM.CoreTest.Databases
     {
 
         private ConcurrentDictionary<int, ConcurrentDictionary<string, object>> Datas;
+        private int NextAutoIncrement = 1;
 
         public ExempleDatabase(ModelDescriptor<T> model, DatabaseConfiguration c) : base(model, c)
         {
@@ -88,7 +89,7 @@ namespace Dust.ORM.CoreTest.Databases
             return null;
         }
 
-        public override List<T> GetAll(int row)
+        public override List<T> GetAll(int row = -1)
         {
             List<T> res = new List<T>();
             T a = null;
@@ -98,8 +99,17 @@ namespace Dust.ORM.CoreTest.Databases
                 a = Read(reader);
                 if (a != null) res.Add(a);
             } while (a != null);
-            res.RemoveRange(0, row);
-            res.RemoveRange(Config.GetAllSize, res.Count-Config.GetAllSize);
+            if(row != -1)
+            {
+                if (res.Count >= row)
+                {
+                    res.RemoveRange(0, row);
+                }
+                if(Config.GetAllSize < res.Count)
+                {
+                    res.RemoveRange(Config.GetAllSize, res.Count - Config.GetAllSize);
+                }
+            }
             return res;
         }
 
@@ -118,8 +128,12 @@ namespace Dust.ORM.CoreTest.Databases
             {
                 obj[p.Name] = p.Get(data);
             }
-
-            return Datas.TryAdd(data.ID, obj);
+            if( (int)obj["ID"] == 0)
+            {
+                obj["ID"] = NextAutoIncrement;
+                NextAutoIncrement++;
+            }
+            return Datas.TryAdd((int)obj["ID"], obj);
         }
 
         public override bool InsertAll(List<T> data, bool ID = false)
@@ -133,7 +147,12 @@ namespace Dust.ORM.CoreTest.Databases
                 {
                     obj[p.Name] = p.Get(d);
                 }
-                res = res && Datas.TryAdd(d.ID, obj);
+                if ((int)obj["ID"] == 0)
+                {
+                    obj["ID"] = NextAutoIncrement;
+                    NextAutoIncrement++;
+                }
+                res = res && Datas.TryAdd((int)obj["ID"], obj);
             }
             return res;
         }

@@ -26,7 +26,7 @@ namespace Dust.ORM.CoreTest.Core
 
         public abstract void SetupOrm();
 
-        public (TimeSpan modelCreation, TimeSpan unique, int[] quantity, (TimeSpan store, TimeSpan getAll, TimeSpan clearAll)[]) Benchmark<T>(params int[] quantity) where T : DataModel, new()
+        public (TimeSpan modelCreation, TimeSpan unique, int[] quantity, (TimeSpan store, TimeSpan getAll, TimeSpan clearAll)[]) Benchmark<T>(int repeatCount, params int[] quantity) where T : DataModel, new()
         {
             TimeSpan res1, res2;
             Stopwatch watch = new Stopwatch();
@@ -36,35 +36,42 @@ namespace Dust.ORM.CoreTest.Core
             watch.Stop();
             res1 = watch.Elapsed;
 
-
-            (TimeSpan store, TimeSpan getAll, TimeSpan clearAll)[] res = new (TimeSpan store, TimeSpan getAll, TimeSpan clearAll)[quantity.Length];
-            for(int y = 0; y < quantity.Length; ++y)
-            {
-                List<T> list = new List<T>();
-                watch.Restart();
-                for (int i = 0; i < quantity[y]; ++i)
-                {
-                    list.Add(new T());
-                }
-                repo.InsertAll(list);
-                watch.Stop();
-                res[y].store = watch.Elapsed;
-                watch.Restart();
-                List<T> vars = repo.GetAll(0);
-                watch.Stop();
-                res[y].getAll = watch.Elapsed;
-                Assert.Equal(quantity[y], vars.Count);
-                watch.Restart();
-                repo.Clear();
-                watch.Stop();
-                res[y].clearAll = watch.Elapsed;
-            }
-
             watch.Restart();
             repo.Insert(new T());
             watch.Stop();
             res2 = watch.Elapsed;
             repo.Clear();
+
+            (TimeSpan store, TimeSpan getAll, TimeSpan clearAll)[] res = new (TimeSpan store, TimeSpan getAll, TimeSpan clearAll)[quantity.Length];
+            for(int y = 0; y < quantity.Length; ++y)
+            {
+                List<T> list = new List<T>();
+                for (int i = 0; i < quantity[y]; ++i)
+                {
+                    list.Add(new T());
+                }
+                TimeSpan store = new TimeSpan(0), getAll = new TimeSpan(0), clearAll = new TimeSpan(0); 
+                for(int repeat = 0; repeat < repeatCount; ++repeat)
+                {
+                    watch.Restart();
+                    repo.InsertAll(list);
+                    watch.Stop();
+                    store += watch.Elapsed;
+                    watch.Restart();
+                    List<T> vars = repo.GetAll(0);
+                    watch.Stop();
+                    getAll += watch.Elapsed;
+                    Assert.Equal(quantity[y], vars.Count);
+                    watch.Restart();
+                    repo.Clear();
+                    watch.Stop();
+                    clearAll = watch.Elapsed;
+                }
+                res[y].store = store / repeatCount;
+                res[y].getAll = getAll / repeatCount;
+                res[y].clearAll = clearAll / repeatCount;
+            }
+
             return (res1, res2, quantity, res);
         }
 

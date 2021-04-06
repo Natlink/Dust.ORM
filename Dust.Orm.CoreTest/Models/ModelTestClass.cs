@@ -8,7 +8,7 @@ using Xunit.Abstractions;
 namespace Dust.ORM.CoreTest.Models
 {
 
-    internal class TestClass<T> : DataModel
+    public class TestClass<T> : DataModel
     {
         [Property(false, 10, null)] public T TestValue1 { get; set; }
         [Property(false, 10, null)] public T TestValue2 { get; set; }
@@ -19,11 +19,11 @@ namespace Dust.ORM.CoreTest.Models
             TestValue2 = testValue2;
         }
 
-        public TestClass() { TestValue1 = default; TestValue2 = default; }
+        public TestClass() { ID = 0; TestValue1 = default; TestValue2 = default; }
     }
 
 
-    class ReferenceModel : DataModel
+    public class ReferenceModel : DataModel
     {
         [Property(false, 10, null)]
         public int TestValue { get; set; }
@@ -49,7 +49,7 @@ namespace Dust.ORM.CoreTest.Models
         }
     }
 
-    class SubReferenceModel : DataModel
+    public class SubReferenceModel : DataModel
     {
         [Property(false, 10, null)]
         public int SubValue { get; set; }
@@ -69,7 +69,7 @@ namespace Dust.ORM.CoreTest.Models
         }
     }
 
-    class EnumerableModel : DataModel
+    public class EnumerableModel : DataModel
     {
         [EnumerableProperty(typeof(int))]
         public List<int> Datas { get; set; }
@@ -94,7 +94,7 @@ namespace Dust.ORM.CoreTest.Models
         }
     }
 
-    class ParsableModel : DataModel
+    public class ParsableModel : DataModel
     {
         [ParsableProperty]
         public ParsableReference ParsableObject { get; set; }
@@ -116,7 +116,7 @@ namespace Dust.ORM.CoreTest.Models
         }
     }
 
-    class ParsableReference
+    public class ParsableReference
     {
         public int Value1 { get; set; }
         public int Value2 { get; set; }

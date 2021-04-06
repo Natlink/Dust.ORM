@@ -1,4 +1,5 @@
 ﻿using Dust.ORM.Core;
+using Dust.ORM.Core.Repositories;
 using Dust.ORM.CoreTest.Models;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using Xunit.Abstractions;
 
 namespace Dust.ORM.CoreTest.Core
 {
-    [Collection("Parsable")]
+    [Collection("TestDatabase")]
     public abstract class OrmCoreTestParsable : OrmCoreTest
     {
         protected OrmCoreTestParsable(ITestOutputHelper output) : base(output)
@@ -66,6 +67,27 @@ namespace Dust.ORM.CoreTest.Core
             {
                 Log.Info(e.ToString());
                 Assert.True(false);
+            }
+        }
+
+        [Fact]
+        public void InsertListTest()
+        {
+            SetupOrm();
+            DataRepository<ParsableModel> repo = Manager.Get<ParsableModel>();
+
+            List<ParsableModel> list = new List<ParsableModel>();
+            for (int i = 0; i < 10; ++i)
+            {
+                list.Add(new ParsableModel(0, 50, new ParsableReference(100, 200, 300)));
+            }
+            for (int repeat = 0; repeat < 10; ++repeat)
+            {
+                Assert.True(repo.Clear() );
+                Assert.True(repo.InsertAll(list));
+                List<ParsableModel> vars = repo.GetAll(0);
+                Assert.Equal(list.Count, vars.Count);
+                Assert.True(repo.Clear());
             }
         }
     }

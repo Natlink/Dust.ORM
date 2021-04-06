@@ -58,8 +58,8 @@ namespace Dust.ORM.Mysql.Database
 
         public override bool ClearTable()
         {
-           // ExecuteUpdate("CREATE TABLE IF NOT EXISTS `" + Descriptor.ModelTypeName + "` (`ID` INT(11))");
-            return ExecuteUpdate("TRUNCATE TABLE " + Descriptor.ModelTypeName+"") != 0;
+            // Truncate table return 0 if all OK
+            return ExecuteUpdate("TRUNCATE TABLE " + Descriptor.ModelTypeName+"") == 0;
         }
 
         public override bool CreateTable()
@@ -124,11 +124,11 @@ namespace Dust.ORM.Mysql.Database
             return Read(ExecuteReader("SELECT * FROM `"+Descriptor.ModelTypeName+"` WHERE `ID` = "+id));
         }
 
-        public override List<T> GetAll(int row)
+        public override List<T> GetAll(int row = -1)
         {
             List<T> res = new List<T>();
             T a = null;
-            var reader = ExecuteReader("SELECT * FROM `" + Descriptor.ModelTypeName + "` LIMIT "+row+","+Config.GetAllSize);
+            var reader = ExecuteReader("SELECT * FROM `" + Descriptor.ModelTypeName + (row == -1 ? "`" : "` LIMIT " + row + "," + Config.GetAllSize));
             do
             {
                 a = Read(reader);
@@ -177,7 +177,7 @@ namespace Dust.ORM.Mysql.Database
             bool first = true;
             foreach (PropertyDescriptor p in Descriptor.Props)
             {
-                if (!ID && p.Name.Equals("ID")) continue;
+                if (!p.ActiveProperty) continue;
                 statement += (first ? "" : ", ") + "`" + p.Name + "`";
                 first = false;
             }
@@ -190,7 +190,7 @@ namespace Dust.ORM.Mysql.Database
                 bool firstProp = true;
                 foreach (PropertyDescriptor p in Descriptor.Props)
                 {
-                    if (!ID && p.Name.Equals("ID")) continue;
+                    if (!p.ActiveProperty) continue;
                     if (p.PropertyType.Equals(typeof(DateTime)))
                     {
                         statement += (firstProp ? "(" : ",") + " '" + ((DateTime)Descriptor.GetValue(d, p.Name)).ToString("yyyy-MM-dd HH:mm:ss") + "'";

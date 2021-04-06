@@ -1,4 +1,5 @@
 ﻿using Dust.ORM.Core;
+using Dust.ORM.Core.Repositories;
 using Dust.ORM.CoreTest.Models;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ using Xunit.Abstractions;
 namespace Dust.ORM.CoreTest.Core
 {
 
-    [Collection("Enumerable")]
+    [Collection("TestDatabase")]
     public abstract class OrmCoreTestEnumerable : OrmCoreTest
     {
         protected OrmCoreTestEnumerable(ITestOutputHelper output) : base(output)
@@ -46,6 +47,28 @@ namespace Dust.ORM.CoreTest.Core
             {
                 Log.Info(e.ToString());
                 Assert.True(false);
+            }
+        }
+
+
+        [Fact]
+        public void InsertListTest()
+        {
+            SetupOrm();
+            DataRepository<EnumerableModel> repo = Manager.Get<EnumerableModel>();
+
+            List<EnumerableModel> list = new List<EnumerableModel>();
+            for (int i = 0; i < 10; ++i)
+            {
+                list.Add(new EnumerableModel(0, new List<int>(new int[] { 0, 1, 2, 3, 42 }), 50));
+            }
+            for (int repeat = 0; repeat < 10; ++repeat)
+            {
+                Assert.True(repo.Clear());
+                Assert.True(repo.InsertAll(list));
+                List<EnumerableModel> vars = repo.GetAll(0);
+                Assert.Equal(list.Count, vars.Count);
+                Assert.True(repo.Clear());
             }
         }
     }

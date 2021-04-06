@@ -1,4 +1,5 @@
 ﻿using Dust.ORM.Core;
+using Dust.ORM.Core.Repositories;
 using Dust.ORM.CoreTest.Models;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using Xunit.Abstractions;
 
 namespace Dust.ORM.CoreTest.Core
 {
-    [Collection("Reference")]
+    [Collection("TestDatabase")]
     public abstract class OrmCoreTestReference : OrmCoreTest
     {
         protected OrmCoreTestReference(ITestOutputHelper output) : base(output)
@@ -45,6 +46,34 @@ namespace Dust.ORM.CoreTest.Core
             {
                 Log.Info(e.ToString());
                 Assert.True(false);
+            }
+        }
+
+
+        [Fact]
+        public void InsertListTest()
+        {
+            SetupOrm();
+            DataRepository<ReferenceModel> repo1 = Manager.Get<ReferenceModel>();
+            DataRepository<SubReferenceModel> repo2 = Manager.Get<SubReferenceModel>();
+
+            List<ReferenceModel> list1 = new List<ReferenceModel>();
+            List<SubReferenceModel> list2 = new List<SubReferenceModel>();
+            for (int i = 1; i < 11; ++i)
+            {
+                list2.Add(new SubReferenceModel(i, 42));
+                list1.Add(new ReferenceModel(i, 4200, i, null));
+            }
+            for (int repeat = 0; repeat < 2; ++repeat)
+            {
+                repo1.Clear();
+                repo2.Clear();
+                repo2.InsertAll(list2);
+                repo1.InsertAll(list1);
+                List<ReferenceModel> vars1 = repo1.GetAll(0);
+                Assert.Equal(list1.Count, vars1.Count);
+                repo1.Clear();
+                repo2.Clear();
             }
         }
     }
