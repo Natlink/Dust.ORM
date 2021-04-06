@@ -64,17 +64,14 @@ namespace Dust.ORM.CoreTest.Core
                 list2.Add(new SubReferenceModel(i, 42));
                 list1.Add(new ReferenceModel(i, 4200, i, null));
             }
-            for (int repeat = 0; repeat < 2; ++repeat)
-            {
-                repo1.Clear();
-                repo2.Clear();
-                repo2.InsertAll(list2);
-                repo1.InsertAll(list1);
-                List<ReferenceModel> vars1 = repo1.GetAll(0);
-                Assert.Equal(list1.Count, vars1.Count);
-                repo1.Clear();
-                repo2.Clear();
-            }
+            repo1.Clear();
+            repo2.Clear();
+            repo2.InsertAll(list2);
+            repo1.InsertAll(list1);
+            List<ReferenceModel> vars1 = repo1.GetAll(0);
+            Assert.Equal(list1.Count, vars1.Count);
+            repo1.Clear();
+            repo2.Clear();
         }
     }
 }

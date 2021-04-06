@@ -58,18 +58,15 @@ namespace Dust.ORM.CoreTest.Core
             DataRepository<EnumerableModel> repo = Manager.Get<EnumerableModel>();
 
             List<EnumerableModel> list = new List<EnumerableModel>();
-            for (int i = 0; i < 10; ++i)
+            for (int i = 1; i < 11; ++i)
             {
                 list.Add(new EnumerableModel(0, new List<int>(new int[] { 0, 1, 2, 3, 42 }), 50));
             }
-            for (int repeat = 0; repeat < 10; ++repeat)
-            {
-                Assert.True(repo.Clear());
-                Assert.True(repo.InsertAll(list));
-                List<EnumerableModel> vars = repo.GetAll(0);
-                Assert.Equal(list.Count, vars.Count);
-                Assert.True(repo.Clear());
-            }
+            Assert.True(repo.Clear());
+            Assert.True(repo.InsertAll(list));
+            List<EnumerableModel> vars = repo.GetAll(0);
+            Assert.Equal(list.Count, vars.Count);
+            Assert.True(repo.Clear());
         }
     }
 }

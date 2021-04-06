@@ -51,21 +51,6 @@ namespace Dust.ORM.CoreTest.Core
 
                 Assert.Null(repo.Get(id));
 
-                Assert.True(repo.InsertAll(new List<TestClass<int>>() {
-                    new TestClass<int>(1, testValue1, testValue2),
-                    new TestClass<int>(2, testValue1, testValue2),
-                    new TestClass<int>(3, testValue1, testValue2),
-                    new TestClass<int>(4, testValue1, testValue2),
-                    new TestClass<int>(5, testValue1, testValue2),
-                    new TestClass<int>(6, testValue1, testValue2),
-                    new TestClass<int>(7, testValue1, testValue2),
-                    new TestClass<int>(8, testValue1, testValue2),
-                    new TestClass<int>(9, testValue1, testValue2),
-                    new TestClass<int>(10, testValue1, testValue2),
-                    new TestClass<int>(11, testValue1, testValue2),
-                    new TestClass<int>(12, testValue1, testValue2),
-                }));
-                
             }
             catch(ORMException e)
             {
@@ -82,18 +67,16 @@ namespace Dust.ORM.CoreTest.Core
             DataRepository<TestClass<int>> repo = Manager.Get<TestClass<int>>();
 
             List<TestClass<int>> list = new List<TestClass<int>>();
-            for (int i = 0; i < 10; ++i)
+            for (int i = 1; i < 11; ++i)
             {
                 list.Add(new TestClass<int>());
             }
-            for (int repeat = 0; repeat < 10; ++repeat)
-            {
-                Assert.True(repo.Clear());
-                Assert.True(repo.InsertAll(list));
-                List<TestClass<int>> vars = repo.GetAll(-1);
-                Assert.Equal(list.Count, vars.Count);
-                repo.Clear();
-            }
+
+            Assert.True(repo.Clear());
+            Assert.True(repo.InsertAll(list));
+            List<TestClass<int>> vars = repo.GetAll(-1);
+            Assert.Equal(list.Count, vars.Count);
+            Assert.True(repo.Clear());
         }
 
     }
