@@ -11,23 +11,25 @@ namespace Dust.ORM.Core
     [Serializable]
     public class ORMConfiguration : DustConfig
     {
+        public string ExtensionFolder;
         public string SelectedDatabase;
         public List<DatabaseConfiguration> Configs;
 
+        
         public ORMConfiguration()
         {
             Configs = new List<DatabaseConfiguration>();
             SelectedDatabase = Configs.Count > 0 ? Configs[0].Name : "default";
+            ExtensionFolder = "OrmExtension";
         }
 
-        public ORMConfiguration(bool lookForDatabaseConfiguration = true)
+        public ORMConfiguration(string extensionFolder, string selectedDatabase, List<DatabaseConfiguration> configs)
         {
-            Configs = lookForDatabaseConfiguration? 
-                ScanDatabase() : 
-                new List<DatabaseConfiguration>();
-            SelectedDatabase = Configs.Count > 0 ? Configs[0].Name : "default";
+            ExtensionFolder = extensionFolder;
+            SelectedDatabase = selectedDatabase;
+            Configs = configs;
         }
-
+        /*
         public List<DatabaseConfiguration> ScanDatabase()
         {
             var configs = new List<DatabaseConfiguration>();
@@ -36,13 +38,21 @@ namespace Dust.ORM.Core
                 foreach (Type type in assembly.GetTypes())
                 {
 
-                    if (type.GetCustomAttributes(typeof(DatabaseConfigurationAttribute), true).Length > 0 && !type.Equals(typeof(DatabaseConfiguration)))
-                    {
-                        configs.Add((DatabaseConfiguration)Activator.CreateInstance(type));
-                    }
                 }
             }
             return configs;
+        }*/
+
+        internal void AddToConfigurations(Type type)
+        {
+            foreach(var a in Configs)
+            {
+                if (a.GetType().Equals(type))
+                {
+                    return;
+                }
+            }
+            Configs.Add((DatabaseConfiguration)Activator.CreateInstance(type));
         }
     }
 

@@ -25,21 +25,22 @@ namespace Dust.ORM.CoreTest.Tests
 
         public override void SetupOrm()
         {
-            Manager = new ORMManager(Log, "TestConfigurationBasic.xml");
+            Manager = new ORMManager(Log, ConfigLoader.Load<ORMConfiguration>("TestConfigurationBasic.xml", Log));
         }
 
+      //  [Fact]
         public void TestBenchmark()
         {
             Directory.CreateDirectory("benchmarks");
-            int[] array = new int[100];
-            for (int i = 0; i < 100; ++i)
-            {
-                array[i] = i;
-            }
-
+            int[] array = new int[] {
+                1, 5, 10, 25, 50, 75, 100, 250, 500, 750, 1000, 
+                1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000,
+                2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000,
+                3200, 3400, 3600, 3800, 4000, 4200, 4400, 4600, 4800, 5000
+            };
             try
             {
-                var res = Benchmark<TestClass<int>>(10, array);
+                var res = Benchmark<TestClass<int>>(40, array);
                 File.AppendAllText("benchmarks/TestClass.csv", BenchmarkToCsv<TestClass<int>>(res));
             }
             catch (Exception e)

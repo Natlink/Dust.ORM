@@ -35,10 +35,12 @@ namespace Dust.ORM.Core.Repositories
     public class DataRepository<T> : DataRepository, IDataRepository<T> where T : DataModel, new()
     {
         internal IDatabase<T> Database;
+        internal IORMManager Manager;
 
-        internal DataRepository(IDatabase<T> database) : base(typeof(T))
+        internal DataRepository(IDatabase<T> database, IORMManager manager) : base(typeof(T))
         {
             Database = database;
+            Manager = manager;
         }
 
         public bool Delete(int id)
@@ -60,14 +62,14 @@ namespace Dust.ORM.Core.Repositories
         {
             T res = Database.Get(id);
 
-            if (Database.Descriptor.AutoResolveReference) ORMManager.Singleton.ResolveReference<T>(ref res);
+            if (Database.Descriptor.AutoResolveReference) Manager.ResolveReference<T>(ref res);
             return res; 
         }
 
         public List<T> GetAll(int row = -1)
         {
             List<T> res = Database.GetAll(row);
-            if (Database.Descriptor.AutoResolveReference) ORMManager.Singleton.ResolveReference<T>(ref res);
+            if (Database.Descriptor.AutoResolveReference) Manager.ResolveReference<T>(ref res);
             return res;
         }
 
