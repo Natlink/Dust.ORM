@@ -22,15 +22,7 @@ namespace Dust.ORM.Core
         private Dictionary<Type, DataRepository> Repos;
         private Dictionary<string, Type> DatabaseTypes;
 
-        public ORMManager(ILogger logs, ORMConfiguration config)
-        {
-            Logs = logs;
-            Repos = new Dictionary<Type, DataRepository>();
-            Config = config;
-            DatabaseTypes = LoadDatabaseType();
-        }
-
-        public ORMManager(ILogger logs, string configurationFilename = "OrmConfiguration.xml")
+        public ORMManager(ILogger logs, string extensionFolder, string configurationFilename = "OrmConfiguration.xml")
         {
             Logs = logs;
             if (configurationFilename == null || configurationFilename.Length <= 0 || configurationFilename.IndexOfAny(new char[] { '*', '&', '#', '\\', '/', '\n', '\t'}) != -1)
@@ -38,10 +30,11 @@ namespace Dust.ORM.Core
                 throw new ConfigurationException(null, "ORMConfiguration file's name can't be null, empty or contains theses chars: * & # \\ / newLine tabulation.\nSubmited ormConfiguration file name: "+configurationFilename);
             }
 
-            Config = ConfigLoader.Load<ORMConfiguration>(configurationFilename, Logs);
-            Repos = new Dictionary<Type, DataRepository>();
-            DatabaseTypes = LoadDatabaseType();
+            List<Assembly> assemblies = LoadAssemblies(extensionFolder);
 
+            Config = ConfigLoader.Load<ORMConfiguration>(configurationFilename, assemblies, Logs);
+            Repos = new Dictionary<Type, DataRepository>();
+            DatabaseTypes = LoadDatabaseType(assemblies, configurationFilename);
         }
 
         public DataRepository<T> Get<T>() where T : DataModel, new()
@@ -73,17 +66,12 @@ namespace Dust.ORM.Core
             throw new ConfigurationException(Config, "Not registered database type: " + Config.SelectedDatabase);
         }
 
-        private Dictionary<string, Type> LoadDatabaseType()
+        private Dictionary<string, Type> LoadDatabaseType(List<Assembly> assemblies, string configurationFilename)
         {
-            var res = new Dictionary<string, Type>();
-            if(!Directory.Exists("./" + Config.ExtensionFolder))
+            Dictionary<string, Type> res = new Dictionary<string, Type>();
+            bool configurationChanged = false;
+            foreach (Assembly assembly in assemblies)
             {
-                Directory.CreateDirectory("./" + Config.ExtensionFolder);
-                return res;
-            }
-            foreach (string dllName in Directory.GetFiles("./" + Config.ExtensionFolder, "*.dll"))
-            {
-                Assembly assembly = Assembly.LoadFrom("./" + dllName);
                 foreach (Type type in assembly.GetTypes())
                 {
                     var atts = type.GetCustomAttributes<DatabaseAttribute>(true);
@@ -93,9 +81,34 @@ namespace Dust.ORM.Core
                     }
                     if (type.GetCustomAttributes(typeof(DatabaseConfigurationAttribute), true).Length > 0 && !type.Equals(typeof(DatabaseConfiguration)))
                     {
-                        Config.AddToConfigurations(type);
+                        configurationChanged |= Config.AddToConfigurations(type);
                     }
                 }
+            }
+            if (configurationChanged)
+            {
+                ConfigLoader.Save<ORMConfiguration>(configurationFilename, assemblies, Config, Logs);
+            }
+            return res;
+        }
+
+        private List<Assembly> LoadAssemblies(string extensionFolder)
+        {
+            var res = new List<Assembly>();
+
+            if (!Directory.Exists("./" + extensionFolder))
+            {
+                Directory.CreateDirectory("./" + extensionFolder);
+                return res;
+            }
+            foreach (string dllName in Directory.GetFiles("./" + extensionFolder, "*.dll"))
+            {
+                Assembly assembly = Assembly.LoadFrom("./" + dllName);
+                if(assembly != null)
+                {
+                    res.Add(assembly);
+                }
+
             }
             return res;
         }

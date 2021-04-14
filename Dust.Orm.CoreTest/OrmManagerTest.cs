@@ -29,9 +29,9 @@ namespace Dust.ORM.CoreTest
             File.WriteAllText("CONFIG_UNREADABLE.xml", "TEST OF CONFIGURATION");
 
             ORMManager manager = null;
-            Assert.Throws<ConfigurationException>(() => manager = new ORMManager(Log, "FileName&#.:\t\n/\\"));
+            Assert.Throws<ConfigurationException>(() => manager = new ORMManager(Log, "OrmExtension", "FileName&#.:\t\n/\\"));
 
-            manager = new ORMManager(Log, "CONFIG_OK.xml");
+            manager = new ORMManager(Log, "OrmExtension", "CONFIG_OK.xml");
             Assert.True(File.Exists("CONFIG_OK.xml"));
 
             manager.Config.SelectedDatabase = "Not a database name";
@@ -41,7 +41,7 @@ namespace Dust.ORM.CoreTest
             manager.Config.SelectedDatabase = "test"; // Correct database name
             Assert.Throws<ConfigurationException>(() => manager.Get<TestClass<int>>());
 
-            Assert.Throws<InvalidOperationException>(() => manager = new ORMManager(Log, "CONFIG_UNREADABLE.xml"));
+            Assert.Throws<InvalidOperationException>(() => manager = new ORMManager(Log, "OrmExtension", "CONFIG_UNREADABLE.xml"));
 
         }
 

@@ -19,7 +19,7 @@ namespace Dust.ORM.CoreTest.Tests
 
         public override void SetupOrm()
         {
-            Manager = new ORMManager(Log, "TestConfigurationParsable.xml");
+            Manager = new ORMManager(Log, "OrmExtension", "TestConfigurationParsable.xml");
         }
     }
 }

@@ -11,7 +11,6 @@ namespace Dust.ORM.Core
     [Serializable]
     public class ORMConfiguration : DustConfig
     {
-        public string ExtensionFolder;
         public string SelectedDatabase;
         public List<DatabaseConfiguration> Configs;
 
@@ -20,12 +19,10 @@ namespace Dust.ORM.Core
         {
             Configs = new List<DatabaseConfiguration>();
             SelectedDatabase = Configs.Count > 0 ? Configs[0].Name : "default";
-            ExtensionFolder = "OrmExtension";
         }
 
-        public ORMConfiguration(string extensionFolder, string selectedDatabase, List<DatabaseConfiguration> configs)
+        public ORMConfiguration( string selectedDatabase, List<DatabaseConfiguration> configs)
         {
-            ExtensionFolder = extensionFolder;
             SelectedDatabase = selectedDatabase;
             Configs = configs;
         }
@@ -43,16 +40,18 @@ namespace Dust.ORM.Core
             return configs;
         }*/
 
-        internal void AddToConfigurations(Type type)
+        internal bool AddToConfigurations(Type type)
         {
             foreach(var a in Configs)
             {
                 if (a.GetType().Equals(type))
                 {
-                    return;
+                    return false;
                 }
             }
             Configs.Add((DatabaseConfiguration)Activator.CreateInstance(type));
+            SelectedDatabase = SelectedDatabase == "default" ? Configs.Count > 0 ? Configs[0].Name : "default" : SelectedDatabase;
+            return true;
         }
     }
 

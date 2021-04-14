@@ -18,7 +18,7 @@ namespace Dust.ORM.CoreTest.Tests
 
         public override void SetupOrm()
         {
-            Manager = new ORMManager(Log, "TestConfigurationEnumerable.xml");
+            Manager = new ORMManager(Log, "OrmExtension", "TestConfigurationEnumerable.xml");
         }
     }
 }
