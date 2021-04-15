@@ -1,4 +1,5 @@
-﻿using Dust.ORM.Core.Models;
+﻿using Dust.ORM.Core.Databases;
+using Dust.ORM.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,5 +17,6 @@ namespace Dust.ORM.Core.Repositories
         public T GetLast();
         public bool Edit(T data);
         public bool Clear();
+        public List<T> Get(RequestDescriptor request, int row = -1);
     }
 }

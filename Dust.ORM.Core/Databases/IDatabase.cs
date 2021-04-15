@@ -21,5 +21,8 @@ namespace Dust.ORM.Core.Databases
         public T GetLast();
         public bool Edit(T data);
         public T Read(IDataReader reader);
+
+        public List<T> Get(RequestDescriptor request, int row = -1);
+
     }
 }

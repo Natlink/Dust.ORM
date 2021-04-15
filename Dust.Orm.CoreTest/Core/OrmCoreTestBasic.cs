@@ -1,4 +1,5 @@
 ﻿using Dust.ORM.Core;
+using Dust.ORM.Core.Databases;
 using Dust.ORM.Core.Repositories;
 using Dust.ORM.CoreTest.Models;
 using System;
@@ -91,6 +92,31 @@ namespace Dust.ORM.CoreTest.Core
             Assert.Equal(EnumTestClass.EnumData.DATA_4, tmp.Value1);
             Assert.Equal(EnumTestClass.EnumData.DATA_2, tmp.Value2);
             Assert.True(repo.Clear());
+        }
+
+        [Fact]
+        public void RequestTest()
+        {
+            SetupOrm(); 
+            DataRepository<TestClass<int>> repo = Manager.Get<TestClass<int>>();
+            Assert.True(repo.Insert(new TestClass<int>(0, 42, 100)));
+            Assert.True(repo.Insert(new TestClass<int>(0, 42, 101)));
+            Assert.True(repo.Insert(new TestClass<int>(0, 40, 102)));
+            Assert.True(repo.Insert(new TestClass<int>(0, 42, 103)));
+            Assert.True(repo.Insert(new TestClass<int>(0, 42, 104)));
+
+            try
+            {
+                var list = repo.Get(new RequestDescriptor("TestValue1", RequestOperator.Equal, 42));
+                Assert.Equal(4, list.Count);
+
+                list = repo.Get(new RequestDescriptor("TestValue1", RequestOperator.NotEqual, 42));
+                Assert.Single(list);
+            }catch(ORMException e)
+            {
+                Log.Error(e.ToString());
+                Assert.True(false);
+            }
         }
 
     }

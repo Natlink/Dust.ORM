@@ -165,6 +165,69 @@ namespace Dust.ORM.CoreTest.Databases
             }
             return null;
         }
+
+        public override List<T> Get(RequestDescriptor request, int row = -1)
+        {
+            List<T> res = new List<T>();
+            T a = null;
+            var reader = new TestDataReader(Datas.Values.ToArray());
+
+            PropertyDescriptor descriptor = null;
+            try
+            {
+                foreach (var p in Descriptor.Props)
+                {
+                    if (p.Name.Equals(request.PropertyName))
+                    {
+                        descriptor = p;
+                        break;
+                    }
+                }
+                if (descriptor == null) return res;
+                do
+                {
+                    a = Read(reader);
+                    if (a != null)
+                    {
+                        bool match = false;
+                        object value = Descriptor.GetValue(a, descriptor.Name);
+                        switch (request.Op)
+                        {
+                            case RequestOperator.Equal: match = value == null ? value == request.Value : value.Equals(request.Value); break;
+                            case RequestOperator.NotEqual: match = value == null ? value != request.Value : !value.Equals(request.Value); break;
+                            case RequestOperator.Greater: match = (double)value > (double)request.Value; break;
+                            case RequestOperator.GreaterOrEqual: match = (double)value >= (double)request.Value; break;
+                            case RequestOperator.Less: match = (double)value < (double)request.Value; break;
+                            case RequestOperator.LessOrEqual: match = (double)value <= (double)request.Value; break;
+                            case RequestOperator.And: match = (bool)value && (bool)request.Value; break;
+                            case RequestOperator.Or: match = (bool)value || (bool)request.Value; break;
+                        }
+                        if (match)
+                        {
+                            res.Add(a);
+                        }
+                    }
+                } while (a != null);
+            }
+            catch(Exception e)
+            {
+                throw new RequestException(request, descriptor, a, "Error in request processing:\n" + e.ToString());
+            }
+            if (row != -1)
+            {
+                if (res.Count >= row)
+                {
+                    res.RemoveRange(0, row);
+                }
+                if (Config.GetAllSize < res.Count)
+                {
+                    res.RemoveRange(Config.GetAllSize, res.Count - Config.GetAllSize);
+                }
+            }
+            return res;
+
+
+        }
         #endregion DataUsage
 
 

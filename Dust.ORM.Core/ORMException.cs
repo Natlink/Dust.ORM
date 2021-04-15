@@ -1,4 +1,5 @@
-﻿using Dust.ORM.Core.Models;
+﻿using Dust.ORM.Core.Databases;
+using Dust.ORM.Core.Models;
 using Dust.ORM.Core.Repositories;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,25 @@ namespace Dust.ORM.Core
             Config = config;
         }
 
+    }
+
+    public class RequestException : ORMException
+    {
+        public RequestDescriptor Request;
+        public PropertyDescriptor Property;
+        public DataModel Model;
+
+        public RequestException(RequestDescriptor request, PropertyDescriptor property, DataModel model, string message) : base(message)
+        {
+            Request = request;
+            Property = property;
+            Model = model;
+        }
+
+        public override string ToString()
+        {
+            return base.ToString()+"\nRequest: "+(Request == null? "null":Request.ToString())+"\nProperty: " + (Property == null ? "null" : Property.ToString())+ "\nModel: " + (Model == null ? "null" : Model.ToString());
+        }
     }
 
     public class PropertyException : ORMException

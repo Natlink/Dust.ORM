@@ -137,6 +137,34 @@ namespace Dust.ORM.Mysql.Database
             return res;
         }
 
+
+        public override List<T> Get(RequestDescriptor request, int row = -1)
+        {
+            List<T> res = new List<T>();
+            T a = null;
+            string condition = "WHERE `"+request.PropertyName+"`";
+            switch (request.Op)
+            {
+                case RequestOperator.Equal: condition += " = "; break;
+                case RequestOperator.NotEqual: condition += " != "; break;
+                case RequestOperator.Greater: condition += " > "; break;
+                case RequestOperator.GreaterOrEqual: condition += " >= "; break;
+                case RequestOperator.Less: condition += " < "; break;
+                case RequestOperator.LessOrEqual: condition += " <= "; break;
+                case RequestOperator.And: condition += " AND "; break;
+                case RequestOperator.Or: condition += " OR "; break;
+            }
+            condition += "'"+request.Value+"' ";
+            var reader = ExecuteReader("SELECT * FROM `" + Descriptor.ModelTypeName + "` " + condition + (row == -1 ? "" : "LIMIT " + row + "," + Config.GetAllSize));
+            do
+            {
+                a = Read(reader);
+                if (a != null) res.Add(a);
+            } while (a != null);
+            return res;
+        }
+
+
         public override T GetLast()
         {
             return Read(ExecuteReader("SELECT * FROM "+Descriptor.ModelTypeName+" WHERE ID=(SELECT MAX(ID) FROM "+Descriptor.ModelTypeName+");"));

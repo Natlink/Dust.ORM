@@ -98,5 +98,16 @@ namespace Dust.ORM.Core.Repositories
         { 
             return data.Count != 0 && Database.InsertAll(data, ID);
         }
+
+
+        public List<T> Get(RequestDescriptor request, int row = -1)
+        {
+            if (request != null)
+            {
+                ///TODO: Request checking whith property type, operator, etc..
+                return Database.Get(request, row);
+            }
+            return new List<T>();
+        }
     }
 }

@@ -39,5 +39,7 @@ namespace Dust.ORM.Core.Databases
         public abstract T Read(IDataReader reader);
 
         public abstract bool InsertAll(List<T> data, bool ID = false);
+
+        public abstract List<T> Get(RequestDescriptor request, int row = -1);
     }
 }
