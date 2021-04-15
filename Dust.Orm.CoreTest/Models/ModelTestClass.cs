@@ -22,6 +22,33 @@ namespace Dust.ORM.CoreTest.Models
         public TestClass() { ID = 0; TestValue1 = default; TestValue2 = default; }
     }
 
+    public class EnumTestClass : DataModel
+    {
+        [Property(false, 10, null)] public EnumData Value1 { get; set; }
+        [Property(false, 10, null)] public EnumData Value2 { get; set; }
+
+        public EnumTestClass(int id, EnumData value1, EnumData value2) : base(id)
+        {
+            Value1 = value1;
+            Value2 = value2;
+        }
+
+        public EnumTestClass() : base()
+        {
+            ID = 0;
+            Value1 = Value2 = default(EnumData);
+        }
+
+        public enum EnumData
+        {
+            DATA_0 = 0,
+            DATA_1 = 1,
+            DATA_2 = 2,
+            DATA_3 = 3,
+            DATA_4 = 4,
+        }
+
+    }
 
     public class ReferenceModel : DataModel
     {

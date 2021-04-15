@@ -79,5 +79,19 @@ namespace Dust.ORM.CoreTest.Core
             Assert.True(repo.Clear());
         }
 
+        [Fact]
+        public void InsertGetEnumeration()
+        {
+            SetupOrm();
+            DataRepository<EnumTestClass> repo = Manager.Get<EnumTestClass>();
+
+            Assert.True(repo.Clear());
+            Assert.True(repo.Insert(new EnumTestClass(1, EnumTestClass.EnumData.DATA_4, EnumTestClass.EnumData.DATA_2)));
+            var tmp = repo.Get(1);
+            Assert.Equal(EnumTestClass.EnumData.DATA_4, tmp.Value1);
+            Assert.Equal(EnumTestClass.EnumData.DATA_2, tmp.Value2);
+            Assert.True(repo.Clear());
+        }
+
     }
 }

@@ -161,6 +161,10 @@ namespace Dust.ORM.Mysql.Database
                 {
                     statement += (first ? "" : ",") + " '" + ((DateTime)Descriptor.GetValue(data, p.Name)).ToString("yyyy-MM-dd HH:mm:ss") + "'";
                 }
+                else if (p.PropertyType.IsEnum)
+                {
+                    statement += (first ? "" : ",") + " '" + (int)Descriptor.GetValue(data, p.Name) + "'";
+                }
                 else
                 {
                     statement += (first ? "" : ",") + " '" + Descriptor.GetValue(data, p.Name) + "'";
@@ -310,13 +314,20 @@ namespace Dust.ORM.Mysql.Database
             if (p.PropertyAttribute != null)
             {
                 res = " `" + p.Name + "` ";
-                switch (p.PropertyType.Name)
+                if (p.PropertyType.IsEnum)
                 {
-                    case "Int32": res += " INT"; break;
-                    case "Boolean": res += " BOOLEAN"; break;
-                    case "String": res += " VARCHAR"; break;
-                    case "DateTime": res += " DATETIME"; break;
-                    default: throw new PropertyException(p, "Unmanaged type by MySQL ORM.");
+                    res += " INT";
+                }
+                else
+                {
+                    switch (p.PropertyType.Name)
+                    {
+                        case "Int32": res += " INT"; break;
+                        case "Boolean": res += " BOOLEAN"; break;
+                        case "String": res += " VARCHAR"; break;
+                        case "DateTime": res += " DATETIME"; break;
+                        default: throw new PropertyException(p, "Unmanaged type by MySQL ORM: "+p.PropertyType);
+                    }
                 }
                 if (p.PropertyAttribute.Size != 0)
                 {

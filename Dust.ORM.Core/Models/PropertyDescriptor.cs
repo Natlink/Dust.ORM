@@ -87,6 +87,10 @@ namespace Dust.ORM.Core.Models
                 object res = toParse == null || toParse.Equals("") || toParse.Equals("null") ? null : PropertyType.GetMethod("Parse", new Type[] { typeof(string) }).Invoke(null, new object[] { value });
                 _descriptor.SetValue(data, res);
             }
+            else if(PropertyType.IsEnum)
+            {
+                _descriptor.SetValue(data, Enum.ToObject(PropertyType, value));
+            }
             else
             {
                 _descriptor.SetValue(data, value);

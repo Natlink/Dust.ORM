@@ -49,6 +49,5 @@ namespace Dust.ORM.CoreTest.Tests
             }
         }
 
-
     }
 }
