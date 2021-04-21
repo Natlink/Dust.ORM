@@ -35,9 +35,16 @@ namespace Dust.ORM.Core.Models
             }
             foreach (PropertyInfo p in ModelType.GetProperties())
             {
-                var pp = new PropertyDescriptor(p);
-                _Props.Add(p.Name, pp);
-                if (pp.ForeignKey) AutoResolveReference = true;
+                if (p.GetCustomAttributes(typeof(PropertyAttribute), true).Length != 0 ||
+                    p.GetCustomAttributes(typeof(EnumerablePropertyAttribute), true).Length != 0 ||
+                    p.GetCustomAttributes(typeof(ForeignIDAttribute), true).Length != 0 ||
+                    p.GetCustomAttributes(typeof(ForeignRefAttribute), true).Length != 0 ||
+                    p.GetCustomAttributes(typeof(ParsablePropertyAttribute), true).Length != 0)
+                {
+                    var pp = new PropertyDescriptor(p);
+                    _Props.Add(p.Name, pp);
+                    if (pp.ForeignKey) AutoResolveReference = true;
+                }
             }
         }
 
@@ -71,6 +78,7 @@ namespace Dust.ORM.Core.Models
             DataModel res = (DataModel)Activator.CreateInstance(ModelType);
             foreach (PropertyDescriptor p in Props)
             {
+                if (p.IsForeignRef) continue;
                 p.Set(res, reader.GetRaw(p.Name));
             }
             return res;
@@ -91,7 +99,7 @@ namespace Dust.ORM.Core.Models
             T res = new T();
             foreach(PropertyDescriptor p in Props)
             {
-                if (!p.ActiveProperty) continue;
+                if (!p.ActiveProperty || p.IsForeignRef) continue;
                 p.Set(res, reader.GetRaw(p.Name));
             }
             return res;

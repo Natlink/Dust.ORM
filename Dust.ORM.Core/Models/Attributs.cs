@@ -43,6 +43,22 @@ namespace Dust.ORM.Core.Models
     }
 
     [AttributeUsage(AttributeTargets.Property)]
+    public class ForeignRefAttribute : Attribute
+    {
+        public Type ForeignRefType { get; private set; }
+
+        public ForeignRefAttribute(Type foreign)
+        {
+            ForeignRefType = foreign;
+            if (!ForeignRefType.IsAssignableTo(typeof(DataModel)))
+            {
+                throw new ORMException("Foreign ID Attribute property can only a DataModel sub-class type.");
+            }
+        }
+
+    }
+
+    [AttributeUsage(AttributeTargets.Property)]
     public class PropertyAttribute : Attribute
     {
         public bool PrimaryKey;

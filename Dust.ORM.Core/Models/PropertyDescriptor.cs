@@ -14,6 +14,7 @@ namespace Dust.ORM.Core.Models
         private PropertyInfo _descriptor;
         public PropertyAttribute PropertyAttribute { get; private set; }
         private ForeignIDAttribute _foreignAttribute;
+        private ForeignRefAttribute _foreignReference;
         private EnumerablePropertyAttribute _enumerableAttribute;
         private ParsablePropertyAttribute _parsableAttribute;
 
@@ -26,6 +27,8 @@ namespace Dust.ORM.Core.Models
         public bool Enumerable { get => _enumerableAttribute != null; }
         public bool Parsable { get => _parsableAttribute != null; }
 
+        public bool IsForeignRef { get => _foreignReference != null; }
+
         public PropertyDescriptor(PropertyInfo p)
         {
             _descriptor = p;
@@ -34,6 +37,7 @@ namespace Dust.ORM.Core.Models
             {
                 if( a is PropertyAttribute)         PropertyAttribute = a as PropertyAttribute;
                 if( a is ForeignIDAttribute)   _foreignAttribute = a as ForeignIDAttribute;
+                if( a is ForeignRefAttribute)   _foreignReference = a as ForeignRefAttribute;
                 if( a is EnumerablePropertyAttribute)   _enumerableAttribute = a as EnumerablePropertyAttribute;
                 if( a is ParsablePropertyAttribute)   _parsableAttribute = a as ParsablePropertyAttribute;
             }

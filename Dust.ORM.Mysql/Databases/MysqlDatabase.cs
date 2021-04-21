@@ -99,6 +99,7 @@ namespace Dust.ORM.Mysql.Database
             bool first = true;
             foreach (PropertyDescriptor p in Descriptor.Props)
             {
+                if (p.IsForeignRef) continue;
                 if (p.PropertyType.Equals(typeof(DateTime)))
                 {
                     statement += (first ? "" : ", ") + "`" + p.Name + "` = '" + ((DateTime)Descriptor.GetValue(data, p.Name)).ToString("yyyy-MM-dd HH:mm:ss") + "'";
@@ -180,7 +181,7 @@ namespace Dust.ORM.Mysql.Database
             bool first = true;
             foreach(PropertyDescriptor p in Descriptor.Props)
             {
-                if (!p.ActiveProperty || (p.Name.Equals("ID") && ((int)Descriptor.GetValue(data, p.Name)) == -1)) continue;
+                if (!p.ActiveProperty || (p.Name.Equals("ID") && ((int)Descriptor.GetValue(data, p.Name)) == -1) || p.IsForeignRef) continue;
                 statement += (first ? "" : ", ") + "`" + p.Name + "`";
                 first = false;
             }
@@ -188,7 +189,7 @@ namespace Dust.ORM.Mysql.Database
             first = true;
             foreach (PropertyDescriptor p in Descriptor.Props)
             {
-                if (!p.ActiveProperty || (p.Name.Equals("ID") && ((int)Descriptor.GetValue(data, p.Name)) == -1)) continue;
+                if (!p.ActiveProperty || (p.Name.Equals("ID") && ((int)Descriptor.GetValue(data, p.Name)) == -1) || p.IsForeignRef) continue;
                 if (p.PropertyType.Equals(typeof(DateTime)))
                 {
                     statement += (first ? "" : ",") + " '" + ((DateTime)Descriptor.GetValue(data, p.Name)).ToString("yyyy-MM-dd HH:mm:ss") + "'";
@@ -213,7 +214,7 @@ namespace Dust.ORM.Mysql.Database
             bool first = true;
             foreach (PropertyDescriptor p in Descriptor.Props)
             {
-                if (!p.ActiveProperty) continue;
+                if (!p.ActiveProperty || p.IsForeignRef) continue;
                 statement += (first ? "" : ", ") + "`" + p.Name + "`";
                 first = false;
             }
@@ -226,7 +227,7 @@ namespace Dust.ORM.Mysql.Database
                 bool firstProp = true;
                 foreach (PropertyDescriptor p in Descriptor.Props)
                 {
-                    if (!p.ActiveProperty) continue;
+                    if (!p.ActiveProperty || p.IsForeignRef) continue;
                     if (p.PropertyType.Equals(typeof(DateTime)))
                     {
                         statement += (firstProp ? "(" : ",") + " '" + ((DateTime)Descriptor.GetValue(d, p.Name)).ToString("yyyy-MM-dd HH:mm:ss") + "'";

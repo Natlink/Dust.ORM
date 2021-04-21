@@ -57,6 +57,7 @@ namespace Dust.ORM.CoreTest.Models
 
         [ForeignID(typeof(SubReferenceModel))]
         public int LinkValue { get; set; }
+        [ForeignRef(typeof(SubReferenceModel))]
         public SubReferenceModel LinkValue_ref { get; set; }
 
         public ReferenceModel()
