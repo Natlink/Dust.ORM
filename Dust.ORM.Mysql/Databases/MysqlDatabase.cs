@@ -103,6 +103,10 @@ namespace Dust.ORM.Mysql.Database
                 {
                     statement += (first ? "" : ", ") + "`" + p.Name + "` = '" + ((DateTime)Descriptor.GetValue(data, p.Name)).ToString("yyyy-MM-dd HH:mm:ss") + "'";
                 }
+                else if (p.PropertyType.IsEnum)
+                {
+                    statement += (first ? "" : ", ") + "`" + p.Name + "` = '" + ((int)Descriptor.GetValue(data, p.Name)) + "'";
+                }
                 else
                 {
                     statement += (first ? "" : ", ") + "`" + p.Name + "` = '" + Descriptor.GetValue(data, p.Name) + "'";
@@ -226,6 +230,10 @@ namespace Dust.ORM.Mysql.Database
                     if (p.PropertyType.Equals(typeof(DateTime)))
                     {
                         statement += (firstProp ? "(" : ",") + " '" + ((DateTime)Descriptor.GetValue(d, p.Name)).ToString("yyyy-MM-dd HH:mm:ss") + "'";
+                    }
+                    else if (p.PropertyType.IsEnum)
+                    {
+                        statement += (first ? "" : ",") + " '" + (int)Descriptor.GetValue(data, p.Name) + "'";
                     }
                     else
                     {
