@@ -120,7 +120,7 @@ namespace Dust.ORM.CoreTest.Databases
             return Read(reader);
         }
 
-        public override bool Insert(T data)
+        public override int Insert(T data)
         {
             ConcurrentDictionary<string, object> obj = new ConcurrentDictionary<string, object>();
 
@@ -133,7 +133,7 @@ namespace Dust.ORM.CoreTest.Databases
                 obj["ID"] = NextAutoIncrement;
                 NextAutoIncrement++;
             }
-            return Datas.TryAdd((int)obj["ID"], obj);
+            return Datas.TryAdd((int)obj["ID"], obj)?(int)obj["ID"]:0;
         }
 
         public override bool InsertAll(List<T> data, bool ID = false)

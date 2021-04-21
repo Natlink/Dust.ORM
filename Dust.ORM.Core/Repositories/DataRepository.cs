@@ -78,12 +78,26 @@ namespace Dust.ORM.Core.Repositories
             return Database.GetLast();
         }
 
+        public bool Insert(T data, out int id)
+        {
+            id = 0;
+            try
+            {
+                if (data != null) id = Database.Insert(data);
+                return id != 0;
+            }catch(Exception)
+            {
+                return false;
+            }
+        }
+
         public bool Insert(T data)
         {
             try
             {
-                return data != null && Database.Insert(data);
-            }catch(Exception)
+                return data != null && Database.Insert(data) != 0;
+            }
+            catch (Exception)
             {
                 return false;
             }

@@ -174,7 +174,7 @@ namespace Dust.ORM.Mysql.Database
             return Read(ExecuteReader("SELECT * FROM "+Descriptor.ModelTypeName+" WHERE ID=(SELECT MAX(ID) FROM "+Descriptor.ModelTypeName+");"));
         }
 
-        public override bool Insert(T data)
+        public override int Insert(T data)
         {
             string statement = "INSERT INTO `" + Descriptor.ModelTypeName + "` ( "; 
             bool first = true;
@@ -204,7 +204,7 @@ namespace Dust.ORM.Mysql.Database
                 first = false;
             }
             statement += ")";
-            return ExecuteInsert(statement) != 0;
+            return ExecuteInsert(statement);
         }
 
         public override bool InsertAll(List<T> data, bool ID = false)

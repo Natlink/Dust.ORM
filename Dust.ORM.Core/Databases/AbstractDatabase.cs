@@ -34,7 +34,7 @@ namespace Dust.ORM.Core.Databases
 
         public abstract T GetLast();
 
-        public abstract bool Insert(T data);
+        public abstract int Insert(T data);
 
         public abstract T Read(IDataReader reader);
 
