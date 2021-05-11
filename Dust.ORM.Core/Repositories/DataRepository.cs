@@ -119,7 +119,10 @@ namespace Dust.ORM.Core.Repositories
             if (request != null)
             {
                 ///TODO: Request checking whith property type, operator, etc..
-                return Database.Get(request, row);
+                ///
+                List<T> res = Database.Get(request, row);
+                if (Database.Descriptor.AutoResolveReference) Manager.ResolveReference<T>(ref res);
+                return res;
             }
             return new List<T>();
         }

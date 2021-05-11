@@ -205,7 +205,9 @@ namespace Dust.ORM.Mysql.Database
                 first = false;
             }
             statement += ")";
-            return ExecuteInsert(statement);
+            int resID = 0;
+            ExecuteInsert(statement, out resID);
+            return resID;
         }
 
         public override bool InsertAll(List<T> data, bool ID = false)
