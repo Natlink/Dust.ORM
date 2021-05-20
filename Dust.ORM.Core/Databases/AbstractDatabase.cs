@@ -20,21 +20,21 @@ namespace Dust.ORM.Core.Databases
 
         public abstract bool CreateTable();
 
-        public abstract bool Delete(int id);
+        public abstract bool Delete(long id);
 
         public abstract bool DeleteTable();
 
         public abstract bool Edit(T data);
 
-        public abstract bool Exist(int id);
+        public abstract bool Exist(long id);
 
-        public abstract T Get(int id);
+        public abstract T Get(long id);
 
         public abstract List<T> GetAll(int row = -1);
 
         public abstract T GetLast();
 
-        public abstract int Insert(T data);
+        public abstract long Insert(T data);
 
         public abstract T Read(IDataReader reader);
 

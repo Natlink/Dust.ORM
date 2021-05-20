@@ -30,6 +30,14 @@ namespace Dust.ORM.Core.Databases.MySQL
                 return (int)(uint)Datas[index][name];
         }
 
+        public long GetLong(string name)
+        {
+            if (Datas[index][name] is long)
+                return (long)Datas[index][name];
+            else
+                return (long)(ulong)Datas[index][name];
+        }
+
         public bool GetBool(string name)
         {
             return (bool)Datas[index][name];

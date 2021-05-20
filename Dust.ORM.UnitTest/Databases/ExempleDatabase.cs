@@ -15,8 +15,8 @@ namespace Dust.ORM.CoreTest.Databases
     class ExempleDatabase<T> : AbstractDatabase<T> where T : DataModel, new()
     {
 
-        private ConcurrentDictionary<int, ConcurrentDictionary<string, object>> Datas;
-        private int NextAutoIncrement = 1;
+        private ConcurrentDictionary<long, ConcurrentDictionary<string, object>> Datas;
+        private long NextAutoIncrement = 1;
 
         public ExempleDatabase(ModelDescriptor<T> model, DatabaseConfiguration c) : base(model, c)
         {
@@ -43,7 +43,7 @@ namespace Dust.ORM.CoreTest.Databases
 
         public override bool CreateTable()
         {
-            Datas = new ConcurrentDictionary<int, ConcurrentDictionary<string, object>>();
+            Datas = new ConcurrentDictionary<long, ConcurrentDictionary<string, object>>();
             return true;
         }
 
@@ -55,7 +55,7 @@ namespace Dust.ORM.CoreTest.Databases
         #endregion TableSetup
 
         #region DataUsage
-        public override bool Delete(int id)
+        public override bool Delete(long id)
         {
             return Datas.TryRemove(id, out _);
         }
@@ -77,12 +77,12 @@ namespace Dust.ORM.CoreTest.Databases
             return false;
         }
 
-        public override bool Exist(int id)
+        public override bool Exist(long id)
         {
             return Datas.ContainsKey(id);
         }
 
-        public override T Get(int id)
+        public override T Get(long id)
         {
             ConcurrentDictionary<string, object> res;
             if (Datas.TryGetValue(id, out res)) return Read(new TestDataReader(res));
@@ -120,7 +120,7 @@ namespace Dust.ORM.CoreTest.Databases
             return Read(reader);
         }
 
-        public override int Insert(T data)
+        public override long Insert(T data)
         {
             ConcurrentDictionary<string, object> obj = new ConcurrentDictionary<string, object>();
 
@@ -128,17 +128,16 @@ namespace Dust.ORM.CoreTest.Databases
             {
                 obj[p.Name] = p.Get(data);
             }
-            if( (int)obj["ID"] == 0)
+            if( (long)obj["ID"] == 0)
             {
                 obj["ID"] = NextAutoIncrement;
                 NextAutoIncrement++;
             }
-            return Datas.TryAdd((int)obj["ID"], obj)?(int)obj["ID"]:0;
+            return Datas.TryAdd((long)obj["ID"], obj)?(long)obj["ID"]:0;
         }
 
         public override bool InsertAll(List<T> data, bool ID = false)
         {
-
             bool res = true;
             foreach(T d in data)
             {
@@ -147,12 +146,12 @@ namespace Dust.ORM.CoreTest.Databases
                 {
                     obj[p.Name] = p.Get(d);
                 }
-                if ((int)obj["ID"] == 0)
+                if ((long)obj["ID"] == 0)
                 {
                     obj["ID"] = NextAutoIncrement;
                     NextAutoIncrement++;
                 }
-                res = res && Datas.TryAdd((int)obj["ID"], obj);
+                res = res && Datas.TryAdd((long)obj["ID"], obj);
             }
             return res;
         }
@@ -258,6 +257,11 @@ namespace Dust.ORM.CoreTest.Databases
         }
 
         public int GetInt(string name)
+        {
+            return (int)Datas[Index][name];
+        }
+
+        public long GetLong(string name)
         {
             return (int)Datas[Index][name];
         }

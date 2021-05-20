@@ -27,8 +27,8 @@ namespace Dust.ORM.Core.Repositories
             }
         }
 
-        public abstract bool Exist(int id);
-        public abstract object Get(int id);
+        public abstract bool Exist(long id);
+        public abstract object Get(long id);
         
     }
 
@@ -43,7 +43,7 @@ namespace Dust.ORM.Core.Repositories
             Manager = manager;
         }
 
-        public bool Delete(int id)
+        public bool Delete(long id)
         {
             return Database.Delete(id);
         }
@@ -53,12 +53,12 @@ namespace Dust.ORM.Core.Repositories
             return Database.Edit(data);
         }
 
-        public override bool Exist(int id)
+        public override bool Exist(long id)
         {
             return Database.Exist(id);
         }
 
-        public override T Get(int id)
+        public override T Get(long id)
         {
             T res = Database.Get(id);
 
@@ -78,7 +78,7 @@ namespace Dust.ORM.Core.Repositories
             return Database.GetLast();
         }
 
-        public bool Insert(T data, out int id)
+        public bool Insert(T data, out long id)
         {
             id = 0;
             try
@@ -97,7 +97,7 @@ namespace Dust.ORM.Core.Repositories
             {
                 return data != null && Database.Insert(data) != 0;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return false;
             }

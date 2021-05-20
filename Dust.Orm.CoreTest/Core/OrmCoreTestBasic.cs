@@ -72,7 +72,6 @@ namespace Dust.ORM.CoreTest.Core
             {
                 list.Add(new TestClass<int>());
             }
-
             Assert.True(repo.Clear());
             Assert.True(repo.InsertAll(list));
             List<TestClass<int>> vars = repo.GetAll(-1);

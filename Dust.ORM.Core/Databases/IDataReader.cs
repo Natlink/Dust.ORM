@@ -8,6 +8,7 @@ namespace Dust.ORM.Core.Databases
     {
         public bool Read();
         public int GetInt(string name);
+        public long GetLong(string name);
         public bool GetBool(string name);
         public string GetString(string name);
         public DateTime GetDate(string name);

@@ -88,7 +88,7 @@ namespace Dust.ORM.Mysql.Database
         #endregion TableSetup
 
         #region DataUsage
-        public override bool Delete(int id)
+        public override bool Delete(long id)
         {
             return ExecuteInsert("DELETE FROM `"+ Descriptor.ModelTypeName + "` WHERE `ID` = "+id) != 0;
         }
@@ -119,12 +119,12 @@ namespace Dust.ORM.Mysql.Database
             return ExecuteInsert(statement) != 0;
         }
 
-        public override bool Exist(int id)
+        public override bool Exist(long id)
         {
             return Read(ExecuteReader("SELECT * FROM `" + Descriptor.ModelTypeName + "` WHERE `ID` = " + id)) != null;
         }
 
-        public override T Get(int id)
+        public override T Get(long id)
         {
             return Read(ExecuteReader("SELECT * FROM `"+Descriptor.ModelTypeName+"` WHERE `ID` = "+id));
         }
@@ -175,13 +175,13 @@ namespace Dust.ORM.Mysql.Database
             return Read(ExecuteReader("SELECT * FROM "+Descriptor.ModelTypeName+" WHERE ID=(SELECT MAX(ID) FROM "+Descriptor.ModelTypeName+");"));
         }
 
-        public override int Insert(T data)
+        public override long Insert(T data)
         {
             string statement = "INSERT INTO `" + Descriptor.ModelTypeName + "` ( "; 
             bool first = true;
             foreach(PropertyDescriptor p in Descriptor.Props)
             {
-                if (!p.ActiveProperty || (p.Name.Equals("ID") && ((int)Descriptor.GetValue(data, p.Name)) == -1) || p.IsForeignRef) continue;
+                if (!p.ActiveProperty || (p.Name.Equals("ID") && ((long)Descriptor.GetValue(data, p.Name)) == -1) || p.IsForeignRef) continue;
                 statement += (first ? "" : ", ") + "`" + p.Name + "`";
                 first = false;
             }
@@ -189,7 +189,7 @@ namespace Dust.ORM.Mysql.Database
             first = true;
             foreach (PropertyDescriptor p in Descriptor.Props)
             {
-                if (!p.ActiveProperty || (p.Name.Equals("ID") && ((int)Descriptor.GetValue(data, p.Name)) == -1) || p.IsForeignRef) continue;
+                if (!p.ActiveProperty || (p.Name.Equals("ID") && ((long)Descriptor.GetValue(data, p.Name)) == -1) || p.IsForeignRef) continue;
                 if (p.PropertyType.Equals(typeof(DateTime)))
                 {
                     statement += (first ? "" : ",") + " '" + ((DateTime)Descriptor.GetValue(data, p.Name)).ToString("yyyy-MM-dd HH:mm:ss") + "'";
@@ -361,6 +361,7 @@ namespace Dust.ORM.Mysql.Database
                 {
                     switch (p.PropertyType.Name)
                     {
+                        case "Int64": res += " BIGINT"; break;
                         case "Int32": res += " INT"; break;
                         case "Boolean": res += " BOOLEAN"; break;
                         case "String": res += " VARCHAR"; break;
@@ -387,7 +388,7 @@ namespace Dust.ORM.Mysql.Database
             }
             else if (p.ForeignKey)
             {
-                res = " `" + p.Name + "`  INT (11) DEFAULT NULL";
+                res = " `" + p.Name + "`  BIGINT (16) DEFAULT NULL";
             }
             else if (p.Parsable)
             {

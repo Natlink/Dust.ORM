@@ -122,7 +122,7 @@ namespace Dust.ORM.Core
             {
                 if (p.ForeignKey)
                 {
-                    int id = (int)p.Get(model);
+                    long id = (long)p.Get(model);
                     DataRepository repo = GetGeneric(p.ForeignType);
                     object refValue = repo.Get(id);
                     descriptor.SetValue(model, p.Name + "_ref", refValue);
@@ -141,7 +141,7 @@ namespace Dust.ORM.Core
                     DataRepository repo = GetGeneric(p.ForeignType);
                     foreach(T tt in modelList)
                     {
-                        int id = (int)p.Get(tt);
+                        long id = (long)p.Get(tt);
                         object refValue = repo.Get(id);
                         descriptor.SetValue(tt, p.Name + "_ref", refValue);
                     }

@@ -13,7 +13,7 @@ namespace Dust.ORM.CoreTest.Models
         [Property(false, 10, null)] public T TestValue1 { get; set; }
         [Property(false, 10, null)] public T TestValue2 { get; set; }
 
-        public TestClass(int id, T testValue1, T testValue2) : base(id)
+        public TestClass(long id, T testValue1, T testValue2) : base(id)
         {
             TestValue1 = testValue1;
             TestValue2 = testValue2;
@@ -27,7 +27,7 @@ namespace Dust.ORM.CoreTest.Models
         [Property(false, 10, null)] public EnumData Value1 { get; set; }
         [Property(false, 10, null)] public EnumData Value2 { get; set; }
 
-        public EnumTestClass(int id, EnumData value1, EnumData value2) : base(id)
+        public EnumTestClass(long id, EnumData value1, EnumData value2) : base(id)
         {
             Value1 = value1;
             Value2 = value2;
@@ -56,7 +56,7 @@ namespace Dust.ORM.CoreTest.Models
         public int TestValue { get; set; }
 
         [ForeignID(typeof(SubReferenceModel))]
-        public int LinkValue { get; set; }
+        public long LinkValue { get; set; }
         [ForeignRef(typeof(SubReferenceModel))]
         public SubReferenceModel LinkValue_ref { get; set; }
 
@@ -64,7 +64,7 @@ namespace Dust.ORM.CoreTest.Models
         {
         }
 
-        public ReferenceModel(int id, int testValue, int linkValue, SubReferenceModel linkValue_ref) : base(id)
+        public ReferenceModel(long id, int testValue, int linkValue, SubReferenceModel linkValue_ref) : base(id)
         {
             TestValue = testValue;
             LinkValue = linkValue;
@@ -82,7 +82,7 @@ namespace Dust.ORM.CoreTest.Models
         [Property(false, 10, null)]
         public int SubValue { get; set; }
 
-        public SubReferenceModel(int id, int subValue) : base(id)
+        public SubReferenceModel(long id, int subValue) : base(id)
         {
             SubValue = subValue;
         }
@@ -106,7 +106,7 @@ namespace Dust.ORM.CoreTest.Models
 
         public EnumerableModel() { }
 
-        public EnumerableModel(int id, List<int> datas, int value) : base(id) {
+        public EnumerableModel(long id, List<int> datas, int value) : base(id) {
             Datas = datas;
             Value = value;
         }
@@ -132,7 +132,7 @@ namespace Dust.ORM.CoreTest.Models
 
         public ParsableModel() { }
 
-        public ParsableModel(int id, int value, ParsableReference obj ) : base(id)
+        public ParsableModel(long id, int value, ParsableReference obj ) : base(id)
         {
             ParsableObject = obj;
             Value = value;

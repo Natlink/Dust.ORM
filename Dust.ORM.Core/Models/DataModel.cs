@@ -6,10 +6,10 @@ namespace Dust.ORM.Core.Models
     [ModelClass]
     public abstract class DataModel
     {
-        [Property(true, 11)]
-        public int ID { get; set; }
+        [Property(true, 16)]
+        public long ID { get; set; }
 
-        protected DataModel(int iD)
+        protected DataModel(long iD)
         {
             ID = iD;
         }

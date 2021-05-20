@@ -13,10 +13,10 @@ namespace Dust.ORM.Core.Databases
         public bool ClearTable();
         public bool DeleteTable();
         public List<T> GetAll(int row = -1);
-        public T Get(int id);
-        public bool Exist(int id);
-        public bool Delete(int id);
-        public int Insert(T data);
+        public T Get(long id);
+        public bool Exist(long id);
+        public bool Delete(long id);
+        public long Insert(T data);
         public bool InsertAll(List<T> data, bool ID = false);
         public T GetLast();
         public bool Edit(T data);
