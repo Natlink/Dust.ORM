@@ -10,8 +10,8 @@ namespace Dust.ORM.CoreTest.Models
 
     public class TestClass<T> : DataModel
     {
-        [Property(false, 10, null)] public T TestValue1 { get; set; }
-        [Property(false, 10, null)] public T TestValue2 { get; set; }
+        [Property(false, 100, null)] public T TestValue1 { get; set; }
+        [Property(false, 100, null)] public T TestValue2 { get; set; }
 
         public TestClass(long id, T testValue1, T testValue2) : base(id)
         {

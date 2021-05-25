@@ -97,26 +97,28 @@ namespace Dust.ORM.Mysql.Database
         {
             string statement = "UPDATE `" + Descriptor.ModelTypeName + "` SET ";
             bool first = true;
+            List<(string, string)> parameter = new List<(string, string)>();
             foreach (PropertyDescriptor p in Descriptor.Props)
             {
                 if (p.IsForeignRef) continue;
+                statement += (first ? "`" : ", `") + p.Name+ "` = @"+p.Name;
+                first = false;
                 if (p.PropertyType.Equals(typeof(DateTime)))
                 {
-                    statement += (first ? "" : ", ") + "`" + p.Name + "` = '" + ((DateTime)Descriptor.GetValue(data, p.Name)).ToString("yyyy-MM-dd HH:mm:ss") + "'";
+                    parameter.Add(("@" + p.Name, ((DateTime)Descriptor.GetValue(data, p.Name)).ToString("yyyy-MM-dd HH:mm:ss")));
                 }
                 else if (p.PropertyType.IsEnum)
                 {
-                    statement += (first ? "" : ", ") + "`" + p.Name + "` = '" + ((int)Descriptor.GetValue(data, p.Name)) + "'";
+                    parameter.Add(("@" + p.Name, ((int)Descriptor.GetValue(data, p.Name))+""));
                 }
                 else
                 {
-                    statement += (first ? "" : ", ") + "`" + p.Name + "` = '" + Descriptor.GetValue(data, p.Name) + "'";
+                    parameter.Add(("@" + p.Name, Descriptor.GetValue(data, p.Name) + ""));
                 }
-
-                first = false;
             }
             statement += " WHERE `ID` = "+data.ID;
-            return ExecuteInsert(statement) != 0;
+            int _;
+            return ExecuteInsert(statement, out _, parameter) != 0;
         }
 
         public override bool Exist(long id)
@@ -186,27 +188,29 @@ namespace Dust.ORM.Mysql.Database
                 first = false;
             }
             statement += ") VALUES (";
+            List<(string, string)> parameter = new List<(string, string)>();
             first = true;
             foreach (PropertyDescriptor p in Descriptor.Props)
             {
                 if (!p.ActiveProperty || (p.Name.Equals("ID") && ((long)Descriptor.GetValue(data, p.Name)) == -1) || p.IsForeignRef) continue;
+                statement += (first ? "@" : ", @") + p.Name;
+                first = false;
                 if (p.PropertyType.Equals(typeof(DateTime)))
                 {
-                    statement += (first ? "" : ",") + " '" + ((DateTime)Descriptor.GetValue(data, p.Name)).ToString("yyyy-MM-dd HH:mm:ss") + "'";
+                    parameter.Add( ("@"+p.Name, ((DateTime)Descriptor.GetValue(data, p.Name)).ToString("yyyy-MM-dd HH:mm:ss")) );
                 }
                 else if (p.PropertyType.IsEnum)
                 {
-                    statement += (first ? "" : ",") + " '" + (int)Descriptor.GetValue(data, p.Name) + "'";
+                    parameter.Add(("@" + p.Name, (int)Descriptor.GetValue(data, p.Name)+""));
                 }
                 else
                 {
-                    statement += (first ? "" : ",") + " '" + Descriptor.GetValue(data, p.Name) + "'";
+                    parameter.Add(("@" + p.Name, Descriptor.GetValue(data, p.Name) + ""));
                 }
-                first = false;
             }
             statement += ")";
             int resID = 0;
-            ExecuteInsert(statement, out resID);
+            ExecuteInsert(statement,  out resID, parameter);
             return resID;
         }
 
@@ -220,8 +224,10 @@ namespace Dust.ORM.Mysql.Database
                 statement += (first ? "" : ", ") + "`" + p.Name + "`";
                 first = false;
             }
+            List<(string, string)> parameter = new List<(string, string)>();
             statement += ") VALUES ";
             first = true;
+            int i = 0;
             foreach(T d in data)
             {
                 if (first) first = false;
@@ -230,23 +236,26 @@ namespace Dust.ORM.Mysql.Database
                 foreach (PropertyDescriptor p in Descriptor.Props)
                 {
                     if (!p.ActiveProperty || p.IsForeignRef) continue;
+                    statement += (firstProp ? "(@" : ",@") + i + p.Name;
                     if (p.PropertyType.Equals(typeof(DateTime)))
                     {
-                        statement += (firstProp ? "(" : ",") + " '" + ((DateTime)Descriptor.GetValue(d, p.Name)).ToString("yyyy-MM-dd HH:mm:ss") + "'";
+                        parameter.Add(("@"+i+p.Name, ((DateTime)Descriptor.GetValue(d, p.Name)).ToString("yyyy-MM-dd HH:mm:ss")));
                     }
                     else if (p.PropertyType.IsEnum)
                     {
-                        statement += (first ? "" : ",") + " '" + (int)Descriptor.GetValue(data, p.Name) + "'";
+                        parameter.Add(("@" + i + p.Name, (int)Descriptor.GetValue(data, p.Name)+""));
                     }
                     else
                     {
-                        statement += (firstProp ? "(" : ",") + " '" + Descriptor.GetValue(d, p.Name) + "'";
+                        parameter.Add(("@" + i + p.Name, Descriptor.GetValue(d, p.Name) + ""));
                     }
                     firstProp = false;
                 }
                 statement += ")";
+                i++;
             }
-            return ExecuteInsert(statement) != 0;
+            int _;
+            return ExecuteInsert(statement, out _, parameter) != 0;
         }
 
 
@@ -262,7 +271,7 @@ namespace Dust.ORM.Mysql.Database
 
         #region SQLDriverCall
 
-        public MysqlDataReader ExecuteReader(string querry)
+        public MysqlDataReader ExecuteReader(string querry, List<(string, string)> parameters = null)
         {
             try
             {
@@ -271,6 +280,13 @@ namespace Dust.ORM.Mysql.Database
                     co.Open();
                     using (MySqlCommand cmd = new MySqlCommand(querry, co))
                     {
+                        if (parameters != null)
+                        {
+                            foreach (var s in parameters)
+                            {
+                                cmd.Parameters.AddWithValue(s.Item1, s.Item2);
+                            }
+                        }
                         using (MySqlDataReader r = cmd.ExecuteReader())
                         {
                             List<Dictionary<string, object>> res = new List<Dictionary<string, object>>();
@@ -298,7 +314,7 @@ namespace Dust.ORM.Mysql.Database
             }
         }
 
-        public int ExecuteUpdate(string querry)
+        public int ExecuteUpdate(string querry, List<(string, string)> parameters = null)
         {
             try
             {
@@ -307,6 +323,13 @@ namespace Dust.ORM.Mysql.Database
                     co.Open();
                     using (MySqlCommand cmd = new MySqlCommand(querry, co))
                     {
+                        if (parameters != null)
+                        {
+                            foreach (var s in parameters)
+                            {
+                                cmd.Parameters.AddWithValue(s.Item1, s.Item2);
+                            }
+                        }
                         int res = cmd.ExecuteNonQuery();
                         DebugLog("V", querry);
                         return res;
@@ -320,7 +343,7 @@ namespace Dust.ORM.Mysql.Database
             }
         }
 
-        public int ExecuteInsert(string querry, out int LastID)
+        public int ExecuteInsert(string querry, out int LastID, List<(string, string)> parameters = null)
         {
             try
             {
@@ -329,6 +352,13 @@ namespace Dust.ORM.Mysql.Database
                     co.Open();
                     using (MySqlCommand cmd = new MySqlCommand(querry, co))
                     {
+                        if(parameters != null)
+                        {
+                            foreach(var s in parameters)
+                            {
+                                cmd.Parameters.AddWithValue(s.Item1, s.Item2);
+                            }
+                        }
                         int res = cmd.ExecuteNonQuery();
                         LastID = (int)cmd.LastInsertedId;
                         DebugLog("V", querry);

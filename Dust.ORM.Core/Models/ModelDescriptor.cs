@@ -16,7 +16,7 @@ namespace Dust.ORM.Core.Models
 
         public List<Attribute> Attributes { get; protected set; }
         public IEnumerable<PropertyDescriptor> Props { get { return _Props.Values; } }
-        
+        public int PropsCount { get { return _Props.Count; } }
         internal bool AutoResolveReference;
 
         public ModelDescriptor(Type modelType)

@@ -118,5 +118,28 @@ namespace Dust.ORM.CoreTest.Core
             }
         }
 
+        [Fact]
+        public void InjectionTest()
+        {
+            SetupOrm();
+            DataRepository<TestClass<string>> repo = Manager.Get<TestClass<string>>();
+            Assert.NotNull(repo);
+
+
+            int id = 5;
+            string testValue1 = "##&&||@_'\"{}()[]/\\*+-==", testValue2 = "' OR 1=1 --";
+            Assert.True(repo.Insert(new TestClass<string>(id, testValue1, testValue2)));
+
+            TestClass<string> value = repo.Get(id);
+
+            Assert.Equal(testValue1, value.TestValue1);
+            Assert.Equal(testValue2, value.TestValue2);
+
+            Assert.True(repo.Edit(new TestClass<string>(id, testValue1+"aaa", testValue2)));
+            value = repo.Get(id);
+
+            Assert.Equal(testValue1+"aaa", value.TestValue1);
+        }
+
     }
 }
