@@ -62,13 +62,14 @@ namespace Dust.ORM.Core.Repositories
         {
             T res = Database.Get(id);
 
-            if (Database.Descriptor.AutoResolveReference) Manager.ResolveReference<T>(ref res);
+            if (Database.Descriptor.AutoResolveReference && res != null) Manager.ResolveReference<T>(ref res);
             return res; 
         }
 
         public List<T> GetAll(int row = -1)
         {
             List<T> res = Database.GetAll(row);
+            res.RemoveAll((r) => r == null);
             if (Database.Descriptor.AutoResolveReference) Manager.ResolveReference<T>(ref res);
             return res;
         }
